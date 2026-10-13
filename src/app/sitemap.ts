@@ -11,9 +11,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     at("/", { changeFrequency: "weekly", priority: 1 }),
     at("/store", { changeFrequency: "weekly", priority: 0.9 }),
     at("/faq", { changeFrequency: "monthly", priority: 0.5 }),
-    at("/journal", { changeFrequency: "weekly", priority: 0.6 }),
+    at("/blog", { changeFrequency: "weekly", priority: 0.7 }),
     ...categories.map((c) => at(`/store/${c.slug}`, { changeFrequency: "weekly", priority: 0.8 })),
-    ...articles.map((a) => at(`/journal/${a.slug}`, { changeFrequency: "monthly", priority: 0.6, lastModified: a.updatedAt || a.publishedAt })),
+    ...articles.map((a) => at(`/blog/${a.slug}`, { changeFrequency: "monthly", priority: 0.6, lastModified: a.updatedAt || a.publishedAt })),
     ...products.map((p) => at(`/prodotti/${p.slug}`, { changeFrequency: "weekly", priority: 0.8, lastModified: p.updatedAt })),
     ...pages.map((p) => at(`/${p.slug}`, { changeFrequency: "yearly", priority: 0.3, lastModified: p.updatedAt })),
   ];

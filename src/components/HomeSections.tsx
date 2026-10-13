@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { getFaqs, getFeaturedProducts, getProducts, getTestimonials } from "@/lib/content";
+import { getArticles, getFaqs, getFeaturedProducts, getProducts, getTestimonials } from "@/lib/content";
+import { ArticleCard } from "./ArticleCard";
 import { imageUrl } from "@/lib/image";
 import type { HomeSection, Link as L, ProductCardData } from "@/lib/types";
 import { FaqList } from "./Faq";
@@ -129,11 +130,12 @@ function toShowcase(p: ProductCardData): ShowcaseItem {
 
 export async function HomeSections({ sections }: { sections: HomeSection[] }) {
   const has = (t: HomeSection["_type"]) => sections.some((s) => s._type === t);
-  const [featured, all, faqs, testimonials] = await Promise.all([
+  const [featured, all, faqs, testimonials, articles] = await Promise.all([
     getFeaturedProducts(),
     has("showcaseSection") ? getProducts() : Promise.resolve([] as ProductCardData[]),
     has("faqSection") ? getFaqs(true) : Promise.resolve([]),
     has("testimonialsSection") ? getTestimonials() : Promise.resolve([]),
+    has("blogSection") ? getArticles() : Promise.resolve([]),
   ]);
 
   return (
@@ -260,6 +262,24 @@ export async function HomeSections({ sections }: { sections: HomeSection[] }) {
                       </figure>
                     ))}
                   </div>
+                </div>
+              </section>
+            );
+
+          case "blogSection":
+            if (!articles.length) return null;
+            return (
+              <section key={s._key} className="section blog-section">
+                <div className="container">
+                  <div className="products-head" data-reveal>
+                    <div>
+                      {s.eyebrow ? <span className="eyebrow">{s.eyebrow}</span> : null}
+                      <h2>{s.title}</h2>
+                    </div>
+                    {s.subtitle ? <p>{s.subtitle}</p> : null}
+                  </div>
+                  <div className="article-grid three">{articles.slice(0, 3).map((a) => <ArticleCard key={a._id} a={a} />)}</div>
+                  <div className="products-cta"><Link href="/blog" className="btn btn-outline">{s.ctaLabel || "Tutti gli articoli"}</Link></div>
                 </div>
               </section>
             );

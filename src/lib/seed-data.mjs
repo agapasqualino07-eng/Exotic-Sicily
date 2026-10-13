@@ -56,9 +56,9 @@ export const siteSettings = {
     deliveryEstimate: "Spediamo in tutta Italia, di solito in 2-4 giorni lavorativi.",
   },
   navigation: withKeys([
-    { label: "Prodotti", href: "/store" },
+    { label: "Shop", href: "/store" },
     { label: "Chi siamo", href: "/#storia" },
-    { label: "Journal", href: "/journal" },
+    { label: "Blog", href: "/blog" },
     { label: "Domande", href: "/faq" },
     { label: "Contatti", href: "/contatti" },
   ]),
@@ -208,7 +208,7 @@ export const products = [
       shortDescription: "Croccante fuori, morbida dentro. Essiccata, mai fritta.",
       description: [
         block("Chips di banana asciugate a bassa temperatura. Durante l'essiccazione gli zuccheri del frutto caramellano un po' da soli."),
-        block("Niente olio di frittura: in etichetta c'è scritto banana."),
+        block("Non passa dalla friggitrice. In etichetta c'è scritto banana, e basta."),
       ],
       howTo: ["Sopra la colazione, al posto dei cereali", "Nel mix con mandorle e nocciole, per il trekking", "Sbriciolata sul gelato"],
       illustration: { icon: "banana", color: "#D9A441" },
@@ -383,9 +383,10 @@ export const pages = [
 
 /* ------------------------------ JOURNAL ---------------------------------- */
 const ref = (id) => ({ _type: "reference", _ref: id, _key: key() });
-const article = (slug, publishedAt, title, excerpt, body, productIds, seoTitle) => ({
+const article = (slug, publishedAt, category, title, excerpt, body, productIds, seoTitle) => ({
   _id: `article.${slug}`,
   _type: "article",
+  category,
   title,
   slug: { _type: "slug", current: slug },
   excerpt,
@@ -400,6 +401,7 @@ export const articles = [
   article(
     "come-leggere-etichetta-frutta-essiccata",
     "2026-10-13T09:00:00.000Z",
+    "guide",
     "Frutta essiccata senza zuccheri aggiunti: come leggere l'etichetta",
     "Zucchero, sciroppo, E220, olio: cosa cercare nella lista ingredienti di un sacchetto di frutta essiccata, e perché la riga più corta è quella giusta.",
     [
@@ -424,6 +426,7 @@ export const articles = [
   article(
     "modi-di-mangiare-frutta-essiccata",
     "2026-10-10T09:00:00.000Z",
+    "ricette",
     "7 modi di mangiare la frutta essiccata (oltre che dal sacchetto)",
     "Dalla colazione all'aperitivo: idee veloci per usare mango, ananas, papaya e cocco essiccati, senza accendere il forno.",
     [
@@ -444,7 +447,30 @@ export const articles = [
       block("Una fetta di mango o di ananas nel gin tonic, al posto della scorza."),
       block("L'ottavo modo è il più diffuso: aprire il sacchetto alle 16 e accorgersi alle 16:10 che è finito."),
     ],
-    ["cofanetto-tropicale", "maracuja-essiccato", "cocco-essiccato"],
+    ["maracuja-essiccato", "cocco-essiccato", "cofanetto-tropicale"],
+    "7 modi di mangiare la frutta essiccata",
+  ),
+  article(
+    "idee-regalo-frutta-essiccata",
+    "2026-10-06T09:00:00.000Z",
+    "regali",
+    "Idee regalo con la frutta essiccata (che non finiscono in un cassetto)",
+    "Per i colleghi, per chi ha già tutto, per un'azienda: come regalare la frutta esotica essiccata e con cosa abbinarla.",
+    [
+      block("Un regalo da mangiare ha un vantaggio: nessuno deve trovargli un posto. Qui sotto le combinazioni che ci chiedete più spesso, da quella per il collega a quella per cento clienti."),
+      block("Per chi non sai cosa regalare", "h2"),
+      block("Il cofanetto con quattro sacchetti da 100 g (mango, ananas, papaya e banana) è pensato per questo. Si apre, si assaggia, si litiga su quale sia il migliore."),
+      block("Per una cena", "h2"),
+      block("Al posto della solita bottiglia, un sacchetto di mango e uno di ananas da mettere sul tagliere a fine pasto. Con un pecorino stagionato funzionano molto bene."),
+      block("Per chi cucina", "h2"),
+      block("Il frutto della passione essiccato è il regalo per chi ama sperimentare: si sbriciola sui dolci, si mette nei cocktail, si usa al posto della scorza di agrumi. Lo facciamo in lotti piccoli, quindi è anche un regalo che non si trova ovunque."),
+      block("Per un'azienda", "h2"),
+      block("Per i regali di fine anno a clienti e colleghi possiamo preparare quantità più grandi. Scrivici quante persone sono e per quando ti servono: ti rispondiamo noi, con tempi e prezzi."),
+      block("Un consiglio pratico", "h2"),
+      block("La frutta essiccata non ha bisogno del frigo e viaggia bene. Se il regalo deve partire, è una delle poche cose da mangiare che puoi spedire senza pensieri."),
+    ],
+    ["cofanetto-tropicale", "maracuja-essiccato"],
+    "Idee regalo con la frutta essiccata",
   ),
 ];
 
@@ -485,7 +511,7 @@ export const homePage = {
       _key: key(),
       eyebrow: "Il raccolto",
       title: "Scegli il tuo frutto",
-      subtitle: "Toccane uno e guarda cosa c'è dentro. Spoiler: il frutto.",
+      subtitle: "Toccane uno e guarda l'etichetta. È corta.",
     },
     {
       _type: "compareSection",
@@ -553,6 +579,14 @@ export const homePage = {
       _key: key(),
       eyebrow: "Dicono di noi",
       title: "Cosa dice chi l'ha già assaggiata",
+    },
+    {
+      _type: "blogSection",
+      _key: key(),
+      eyebrow: "Dal blog",
+      title: "Idee per mangiarla, e per regalarla",
+      subtitle: "Ricette veloci, abbinamenti e qualche consiglio per leggere le etichette.",
+      ctaLabel: "Tutti gli articoli",
     },
     {
       _type: "faqSection",

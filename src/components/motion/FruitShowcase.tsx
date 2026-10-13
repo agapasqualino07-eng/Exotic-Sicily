@@ -31,6 +31,8 @@ export type ShowcaseItem = {
 export function FruitShowcase({ items, eyebrow, title, subtitle }: { items: ShowcaseItem[]; eyebrow?: string; title?: string; subtitle?: string }) {
   const [i, setI] = useState(0);
   const [auto, setAuto] = useState(true);
+  const [rm, setRm] = useState(true);
+  useEffect(() => setRm(reducedMotion()), []);
   const root = useRef<HTMLElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -100,9 +102,12 @@ export function FruitShowcase({ items, eyebrow, title, subtitle }: { items: Show
 
   if (!cur) return null;
   const bg = cur.color;
+  // luminanza del colore di sfondo: sotto soglia il testo diventa crema (contrasto ≥ 4.5:1)
+  const lum = (() => { const n = parseInt(bg.slice(1), 16); const c = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => { const x = v / 255; return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4; }); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; })();
+  const textColor = lum < 0.2 ? "#FBF6EE" : "#2B2420";
 
   return (
-    <section ref={root} id="scegli" className="showcase" style={{ ["--sc" as string]: bg, ["--sc-dark" as string]: shade(bg, -0.55), ["--sc-light" as string]: shade(bg, 0.35) }} onPointerDown={() => setAuto(false)}>
+    <section ref={root} id="scegli" className="showcase" style={{ ["--sc" as string]: bg, ["--sc-dark" as string]: shade(bg, -0.55), ["--sc-light" as string]: shade(bg, 0.35), ["--sc-text" as string]: textColor }} onPointerDown={(e) => { if (!(e.target as HTMLElement).closest(".sc-pause")) setAuto(false); }} onFocusCapture={(e) => { if (!(e.target as HTMLElement).closest(".sc-pause")) setAuto(false); }}>
       <div className="container">
         <div className="showcase-head" data-reveal>
           {eyebrow ? <span className="eyebrow">{eyebrow}</span> : null}
@@ -166,6 +171,11 @@ export function FruitShowcase({ items, eyebrow, title, subtitle }: { items: Show
           <div className="sc-nav">
             <button type="button" className="icon-btn" aria-label="Frutto precedente" onClick={() => go(i - 1, true)}><Icon name="arrow" size={20} style={{ transform: "scaleX(-1)" }} /></button>
             <span className="sc-count" aria-hidden="true">{String(i + 1).padStart(2, "0")} / {String(items.length).padStart(2, "0")}</span>
+            {!rm && items.length > 1 ? (
+              <button type="button" className="icon-btn sc-pause" aria-label={auto ? "Ferma lo scorrimento automatico" : "Riprendi lo scorrimento automatico"} aria-pressed={!auto} onClick={(e) => { e.stopPropagation(); setAuto((v) => !v); }}>
+                {auto ? <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5v14M16 5v14" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" /></svg> : <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5Z" fill="currentColor" /></svg>}
+              </button>
+            ) : null}
             <button type="button" className="icon-btn" aria-label="Frutto successivo" onClick={() => go(i + 1, true)}><Icon name="arrow" size={20} /></button>
           </div>
         </div>

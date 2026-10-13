@@ -27,8 +27,9 @@ export function StoreView({ page, products, categories, category }: { page: Stor
         </div>
       </section>
 
-      <section className="section products-section tight">
+      <section className="section products-section tight" aria-labelledby="catalogo-titolo">
         <div className="container">
+          <h2 id="catalogo-titolo" className="sr-only">Prodotti</h2>
           {products.length === 0 ? (
             <div className="empty-state"><p>Stiamo riempiendo gli scaffali. Torna tra poco.</p></div>
           ) : (

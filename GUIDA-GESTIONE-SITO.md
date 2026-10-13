@@ -14,7 +14,7 @@ Il sito è un negozio completo: **tutto ciò che si legge sul sito si modifica d
 | Pagina Store | titolo, testi, riquadri informativi |
 | Pagine di testo | Privacy, Cookie, Termini, Spedizioni & Resi, Contatti (e nuove pagine) |
 | Domande frequenti | pagina /faq + blocco in Home |
-| **Journal (articoli)** | il blog su /journal: titolo, testo, copertina, prodotti citati. È lo strumento SEO più forte: 1-2 articoli al mese su domande reali (ricette, abbinamenti, come leggere un'etichetta) |
+| **Blog (articoli)** | il blog su /blog: titolo, categoria (Ricette, Guide, Regali, Dietro le quinte), riassunto, copertina, testo, prodotti citati. Senza copertina il sito disegna un'illustrazione nei colori del primo prodotto citato. Gli ultimi 3 articoli compaiono in Home (sezione «Dal blog») e ogni scheda prodotto mostra gli articoli che la citano. È lo strumento SEO più forte: 1-2 articoli al mese su domande reali |
 | Iscritti newsletter | lista email (esportabile) |
 | **Impostazioni del sito** | barra annunci, menu, footer, soglia spedizione gratuita, costo spedizione, paesi, contatti, dati aziendali, social, logo, immagine social |
 
@@ -72,6 +72,7 @@ vanno configurati in Stripe (ricevute automatiche) e col vostro commercialista.
 - [ ] Impostare il webhook Sanity e quello Stripe; provare un acquisto con carta di test (`4242 4242 4242 4242`)
 - [ ] Aggiungere recensioni reali (solo con consenso)
 - [ ] Riscrivere «Chi siamo» (Home → sezione Storia) con la vostra storia vera: nomi, luogo, come è nata. Il testo attuale è una bozza nel tono giusto, non un fatto
+- [ ] Rendere specifici i passaggi del processo (es. temperatura e ore di essiccazione) e l'origine della frutta («filiere controllate» è vago): sono le prove più forti, non inventarle
 - [ ] Verificare i tempi di consegna (2-4 giorni) usati anche nei dati per Google Shopping
 - [ ] Google Search Console: aggiungere il dominio e inviare `https://TUOSITO/sitemap.xml"
 

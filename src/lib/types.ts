@@ -99,6 +99,7 @@ export type HomeSection = Keyed &
     | { _type: "productsSection"; eyebrow?: string; title?: string; subtitle?: string; mode?: "featured" | "manual"; products?: ProductCardData[] | null; ctaLabel?: string; ctaHref?: string }
     | { _type: "testimonialsSection"; eyebrow?: string; title?: string }
     | { _type: "faqSection"; eyebrow?: string; title?: string; subtitle?: string }
+    | { _type: "blogSection"; eyebrow?: string; title?: string; subtitle?: string; ctaLabel?: string }
     | { _type: "newsletterSection"; eyebrow?: string; title?: string; text?: string; buttonLabel?: string; successText?: string; note?: string }
     | { _type: "ctaSection"; eyebrow?: string; title?: string; text?: string; cta?: Link }
   );
@@ -113,4 +114,5 @@ export type StorePageData = {
 export type ArticleData = {
   _id: string; title: string; slug: string; excerpt: string; cover?: SImage | null;
   publishedAt?: string; updatedAt?: string; author?: string; body?: PortableTextBlock[]; products?: ProductCardData[] | null; seoTitle?: string;
+  category?: string | null; readingMinutes?: number; coverColor?: string | null; coverIcon?: string | null;
 };

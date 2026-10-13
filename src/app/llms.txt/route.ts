@@ -23,7 +23,7 @@ export async function GET() {
     `- [Domande frequenti](${SITE_URL}/faq)`,
     `- [Spedizioni e resi](${SITE_URL}/spedizioni-e-resi)`,
     `- [Contatti](${SITE_URL}/contatti)`,
-    ...(articles.length ? ["", "## Journal", ...articles.map((a) => `- [${a.title}](${SITE_URL}/journal/${a.slug}): ${a.excerpt}`)] : []),
+    ...(articles.length ? ["", "## Blog", ...articles.map((a) => `- [${a.title}](${SITE_URL}/blog/${a.slug}): ${a.excerpt}`)] : []),
     "",
   ];
   return new Response(lines.join("\n"), { headers: { "Content-Type": "text/plain; charset=utf-8" } });

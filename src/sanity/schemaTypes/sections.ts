@@ -158,6 +158,20 @@ export const testimonialsSection = defineType({
   preview: { select: { title: "title" }, prepare: ({ title }) => ({ title: "Recensioni (appare solo se ce ne sono)", subtitle: title }) },
 });
 
+export const blogSection = defineType({
+  name: "blogSection",
+  title: "Dal blog (ultimi articoli)",
+  type: "object",
+  description: "Mostra automaticamente gli ultimi 3 articoli pubblicati.",
+  fields: [
+    eyebrow,
+    defineField({ name: "title", title: "Titolo", type: "string" }),
+    defineField({ name: "subtitle", title: "Sottotitolo", type: "string" }),
+    defineField({ name: "ctaLabel", title: "Testo del pulsante", type: "string", initialValue: "Tutti gli articoli" }),
+  ],
+  preview: { select: { title: "title" }, prepare: ({ title }) => ({ title: "Dal blog", subtitle: title }) },
+});
+
 export const faqSection = defineType({
   name: "faqSection",
   title: "Domande frequenti (in Home)",
@@ -190,5 +204,5 @@ export const ctaSection = defineType({
   preview: { select: { title: "title" }, prepare: ({ title }) => ({ title: "Invito finale", subtitle: title }) },
 });
 
-export const sectionTypes = [heroSection, marqueeSection, showcaseSection, compareSection, valuesSection, storySection, processSection, productsSection, testimonialsSection, faqSection, newsletterSection, ctaSection];
+export const sectionTypes = [heroSection, marqueeSection, showcaseSection, compareSection, valuesSection, storySection, processSection, productsSection, testimonialsSection, blogSection, faqSection, newsletterSection, ctaSection];
 export const sectionMembers = sectionTypes.map((t) => defineArrayMember({ type: t.name }));

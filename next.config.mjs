@@ -10,7 +10,12 @@ const nextConfig = {
   },
   async redirects() {
     // vecchi link ai filtri (/store?categoria=x) → pagine categoria vere
-    return [{ source: "/store", has: [{ type: "query", key: "categoria", value: "(?<cat>[a-z0-9-]+)" }], destination: "/store/:cat", permanent: true }];
+    return [
+      { source: "/store", has: [{ type: "query", key: "categoria", value: "(?<cat>[a-z0-9-]+)" }], destination: "/store/:cat", permanent: true },
+      // il Journal è diventato Blog
+      { source: "/journal", destination: "/blog", permanent: true },
+      { source: "/journal/:slug", destination: "/blog/:slug", permanent: true },
+    ];
   },
   async headers() {
     return [

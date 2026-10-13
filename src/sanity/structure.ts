@@ -20,7 +20,7 @@ export const structure: StructureResolver = (S) =>
       singleton(S, "homePage", "Home page"),
       singleton(S, "storePage", "Pagina Store"),
       S.documentTypeListItem("page").title("Pagine di testo (privacy, contatti…)"),
-      S.documentTypeListItem("article").title("Journal (articoli)"),
+      S.documentTypeListItem("article").title("Blog (articoli)"),
       S.documentTypeListItem("faqItem").title("Domande frequenti"),
       S.divider(),
       S.documentTypeListItem("subscriber").title("Iscritti newsletter"),

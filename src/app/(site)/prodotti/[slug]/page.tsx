@@ -8,7 +8,8 @@ import { ProductArt, shade } from "@/components/ProductArt";
 import { ProductGrid, toSnapshot } from "@/components/ProductCard";
 import { ProductPurchase } from "@/components/ProductPurchase";
 import { RichText } from "@/components/RichText";
-import { getProduct, getProductSlugs, getSettings } from "@/lib/content";
+import { getArticlesForProduct, getProduct, getProductSlugs, getSettings } from "@/lib/content";
+import { ArticleCard } from "@/components/ArticleCard";
 import { SITE_URL } from "@/lib/format";
 import { imageUrl } from "@/lib/image";
 import { ogFallback, productDescription, productTitle, seoTitle } from "@/lib/seo";
@@ -37,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
-  const [p, settings] = await Promise.all([getProduct(slug), getSettings()]);
+  const [p, settings, articles] = await Promise.all([getProduct(slug), getSettings(), getArticlesForProduct(slug)]);
   if (!p) notFound();
 
   const variants = p.variants ?? [];
@@ -109,6 +110,7 @@ export default async function ProductPage({ params }: Props) {
           <ul className="pdp-assurances">
             <li><Icon name="truck" size={20} /><span>{shipping?.deliveryEstimate || "Spediamo in tutta Italia."}{shipping?.freeShippingThreshold ? ` Gratis sopra ${shipping.freeShippingThreshold} €.` : ""}</span></li>
             <li><Icon name="shield" size={20} /><span>Paghi con Stripe. La tua carta noi non la vediamo mai.</span></li>
+            <li><Icon name="checkCircle" size={20} /><span>Pacco rovinato o sbagliato? Mandaci una foto e lo sistemiamo noi.</span></li>
           </ul>
         </div>
       </section>
@@ -153,6 +155,14 @@ export default async function ProductPage({ params }: Props) {
           <div className="container">
             <div className="products-head"><div><span className="eyebrow">Già che ci sei</span><h2>Sta bene insieme a</h2></div></div>
             <ProductGrid products={p.related.slice(0, 4)} />
+          </div>
+        </section>
+      ) : null}
+      {articles.length ? (
+        <section className="section">
+          <div className="container">
+            <div className="products-head"><div><span className="eyebrow">Dal blog</span><h2>Idee con questo prodotto</h2></div></div>
+            <div className="article-grid">{articles.map((a) => <ArticleCard key={a._id} a={a} />)}</div>
           </div>
         </section>
       ) : null}

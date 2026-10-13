@@ -199,27 +199,59 @@ export async function getProductsForCheckout(slugs: string[]): Promise<ProductCa
   }
 }
 
-/* ------------------------------ JOURNAL ---------------------------------- */
+/* ------------------------------ BLOG ------------------------------------ */
+// Minuti di lettura: ~1000 caratteri al minuto (circa 200 parole)
+const minutes = (chars?: number | null) => Math.max(1, Math.round((chars ?? 0) / 1000));
+const blockText = (body: unknown) =>
+  (Array.isArray(body) ? body : [])
+    .map((b: { children?: { text?: string }[] }) => (b.children ?? []).map((c) => c.text ?? "").join(""))
+    .join(" ");
+
 type SeedArticle = (typeof seed.articles)[number];
-const seedArticle = (a: SeedArticle): ArticleData => ({
-  _id: a._id, title: a.title, slug: a.slug.current, excerpt: a.excerpt, publishedAt: a.publishedAt, author: a.author, seoTitle: (a as { seoTitle?: string }).seoTitle,
-  body: a.body as ArticleData["body"],
-  products: (a.products as { _ref: string }[]).map((r) => seed.products.find((p) => p._id === r._ref)).filter((p): p is SeedProduct => Boolean(p)).map(seedCard),
-});
+const seedArticle = (a: SeedArticle): ArticleData => {
+  const prods = (a.products as { _ref: string }[]).map((r) => seed.products.find((p) => p._id === r._ref)).filter((p): p is SeedProduct => Boolean(p));
+  return {
+    _id: a._id, title: a.title, slug: a.slug.current, excerpt: a.excerpt, publishedAt: a.publishedAt, author: a.author,
+    seoTitle: (a as { seoTitle?: string }).seoTitle, category: a.category,
+    body: a.body as ArticleData["body"],
+    products: prods.map(seedCard),
+    readingMinutes: minutes(blockText(a.body).length),
+    coverColor: prods[0]?.illustration.color ?? null, coverIcon: prods[0]?.illustration.icon ?? null,
+  };
+};
+const seedArticlesSorted = () => [...seed.articles].sort((x, y) => (y.publishedAt > x.publishedAt ? 1 : -1)).map(seedArticle);
+
+const ARTICLE_CARD = `{
+  _id, title, "slug": slug.current, excerpt, category, cover${IMG}, publishedAt, "updatedAt": _updatedAt, author,
+  "chars": length(pt::text(body)),
+  "coverColor": products[0]->illustration.color, "coverIcon": products[0]->illustration.icon
+}`;
+type RawArticle = ArticleData & { chars?: number };
+const withMinutes = (a: RawArticle): ArticleData => ({ ...a, readingMinutes: minutes(a.chars) });
 
 export async function getArticles(): Promise<ArticleData[]> {
-  if (!hasSanity) return seed.articles.map(seedArticle);
-  return query<ArticleData[]>(
-    `*[_type == "article" && defined(slug.current)] | order(publishedAt desc){ _id, title, "slug": slug.current, excerpt, cover${IMG}, publishedAt, "updatedAt": _updatedAt, author }`, {}, ["article"],
-  );
+  if (!hasSanity) return seedArticlesSorted();
+  const list = await query<RawArticle[]>(`*[_type == "article" && defined(slug.current)] | order(publishedAt desc) ${ARTICLE_CARD}`, {}, ["article"]);
+  return list.map(withMinutes);
 }
 
 export async function getArticle(slug: string): Promise<ArticleData | null> {
-  if (!hasSanity) {
-    const a = seed.articles.find((x) => x.slug.current === slug);
-    return a ? seedArticle(a) : null;
-  }
-  return query<ArticleData | null>(
-    `*[_type == "article" && slug.current == $slug][0]{ _id, title, "slug": slug.current, excerpt, cover${IMG}, publishedAt, "updatedAt": _updatedAt, author, body, seoTitle, "products": products[]->${CARD} }`, { slug }, ["article", "product"],
+  if (!hasSanity) return seedArticlesSorted().find((a) => a.slug === slug) ?? null;
+  const a = await query<RawArticle | null>(
+    `*[_type == "article" && slug.current == $slug][0]{
+      _id, title, "slug": slug.current, excerpt, category, cover${IMG}, publishedAt, "updatedAt": _updatedAt, author, body, seoTitle,
+      "chars": length(pt::text(body)), "products": products[]->${CARD},
+      "coverColor": products[0]->illustration.color, "coverIcon": products[0]->illustration.icon
+    }`, { slug }, ["article", "product"],
   );
+  return a ? withMinutes(a) : null;
+}
+
+/** Articoli che citano un prodotto (link interni dalla scheda prodotto al blog). */
+export async function getArticlesForProduct(productSlug: string): Promise<ArticleData[]> {
+  if (!hasSanity) return seedArticlesSorted().filter((a) => a.products?.some((p) => p.slug === productSlug)).slice(0, 2);
+  const list = await query<RawArticle[]>(
+    `*[_type == "article" && $slug in products[]->slug.current] | order(publishedAt desc)[0...2] ${ARTICLE_CARD}`, { slug: productSlug }, ["article"],
+  );
+  return list.map(withMinutes);
 }
