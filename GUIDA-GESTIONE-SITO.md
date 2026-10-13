@@ -10,7 +10,7 @@ Il sito è un negozio completo: **tutto ciò che si legge sul sito si modifica d
 | Negozio → Categorie | filtri dello store |
 | Negozio → Ordini | ordini pagati (arrivano da soli); segni «spedito» e il tracking |
 | Negozio → Recensioni clienti | recensioni mostrate in Home (la sezione compare solo se ce ne sono) |
-| **Home page** | tutte le sezioni: si trascinano, si riordinano, si eliminano, se ne aggiungono |
+| **Home page** | tutte le sezioni (hero con parole che si alternano, vetrina interattiva «Scegli il tuo frutto», confronto etichetta, processo a scorrimento, ecc.): si trascinano, si riordinano, si eliminano, se ne aggiungono |
 | Pagina Store | titolo, testi, riquadri informativi |
 | Pagine di testo | Privacy, Cookie, Termini, Spedizioni & Resi, Contatti (e nuove pagine) |
 | Domande frequenti | pagina /faq + blocco in Home |
@@ -21,27 +21,32 @@ Dopo «Publish» il sito si aggiorna in pochi secondi (con il webhook, vedi sott
 
 ## Messa online — una volta sola
 
-### 1. Sanity (gratis)
+### 1. Sanity (gratis) — tutto dal browser, senza terminale
 1. Su https://www.sanity.io/manage crea un progetto (dataset `production`). Copia il **Project ID**.
-2. Nel progetto → *API* → *Tokens* → crea un token con permesso **Editor**.
-3. *API* → *CORS origins* → aggiungi `http://localhost:3000` e l'indirizzo del sito Vercel (con «Allow credentials»).
-4. In locale: copia `.env.example` in `.env.local`, compila ID e token, poi `npm install` e `npm run seed`
-   (carica prodotti, testi, FAQ e pagine di partenza; non sovrascrive nulla di esistente, `-- --force` sì).
-5. `npm run dev` → apri http://localhost:3000/studio e accedi.
+2. Nel progetto → *API → CORS origins* → aggiungi l'indirizzo del sito Vercel (es. `https://exotic-sicily.vercel.app`)
+   con **Allow credentials** attivo (serve per far funzionare `/studio`).
+3. Nel progetto → *API → Tokens* → crea un token con permesso **Editor**.
+4. Su Vercel → *Settings → Environment Variables* aggiungi:
+   - `NEXT_PUBLIC_SANITY_PROJECT_ID` = il Project ID
+   - `NEXT_PUBLIC_SANITY_DATASET` = `production`
+   - `SANITY_API_WRITE_TOKEN` = il token Editor
+   - `SANITY_REVALIDATE_SECRET` = una parola segreta a tua scelta (es. `mango-2026-xyz`)
+5. Vercel → *Deployments* → ultimo deploy → **⋯ → Redeploy** (le variabili valgono solo dai deploy successivi).
+6. Apri `https://TUOSITO/api/seed?secret=LA-TUA-PAROLA`: carica prodotti, testi, FAQ e pagine di partenza
+   (crea solo ciò che manca, non sovrascrive mai le tue modifiche).
+7. Apri `https://TUOSITO/studio`, accedi con l'account Sanity e modifica tutto.
 
-### 2. Vercel (piano gratuito)
-1. Importa il repository GitHub su Vercel (framework Next.js, nessuna impostazione speciale).
-2. *Settings → Environment Variables*: aggiungi le stesse variabili di `.env.example`.
-3. Webhook di aggiornamento istantaneo: in Sanity → *API → Webhooks* → URL `https://TUOSITO/api/revalidate`,
-   dataset production, trigger Create/Update/Delete, **Secret** = valore di `SANITY_REVALIDATE_SECRET`.
-4. Dominio: *Settings → Domains* → `exoticdrysicily.com`.
+Finché il Project ID non è impostato, `/studio` mostra queste istruzioni invece di un errore.
+In locale, in alternativa: `.env.local` + `npm run seed`.
+
+### 2. Vercel
+Il file `vercel.json` forza il preset Next.js. Webhook di aggiornamento istantaneo: in Sanity → *API → Webhooks* → URL
+`https://TUOSITO/api/revalidate`, dataset production, trigger Create/Update/Delete, **Secret** = `SANITY_REVALIDATE_SECRET`.
+Dominio: *Settings → Domains*.
 
 > ⚠️ **Importante:** i termini del piano Hobby (gratuito) di Vercel ammettono solo uso **non commerciale**.
-> Un negozio che incassa è uso commerciale: per il lancio reale serve il piano Pro (circa 20 $/mese) —
-> oppure un hosting alternativo con piano gratuito commerciale (es. Cloudflare Pages). Per demo, test e
-> anteprime il gratuito va benissimo. Il progetto è stato costruito per restare nei limiti free: immagini dal
-> CDN di Sanity (non consumano la quota immagini Vercel), pagine statiche con rigenerazione, funzioni
-> serverless solo per checkout/newsletter/ordini.
+> Un negozio che incassa è uso commerciale: per il lancio reale serve il piano Pro (circa 20 $/mese) o un altro
+> hosting. Per demo e test il gratuito va benissimo; il progetto è costruito per restare nei limiti free.
 
 ### 3. Pagamenti (Stripe)
 Senza Stripe il carrello propone «Ordina via email / WhatsApp» (funziona già). Per i pagamenti veri:
@@ -66,4 +71,4 @@ vanno configurati in Stripe (ricevute automatiche) e col vostro commercialista.
 
 ## Sviluppo
 `npm run dev` · `npm run build` · `npm run typecheck`. Senza `NEXT_PUBLIC_SANITY_PROJECT_ID` il sito mostra i
-contenuti di `src/lib/seed-data.mjs`. Le skill usate per la progettazione (marketing e UI/UX) sono in `.claude/skills/`.
+contenuti di `src/lib/seed-data.mjs`. Animazioni: GSAP (`src/components/motion/`), tutte disattivate se il visitatore ha attivato «riduci animazioni». Contesto marketing in `.agents/product-marketing.md`. Le skill usate per la progettazione (marketing e UI/UX) sono in `.claude/skills/`.

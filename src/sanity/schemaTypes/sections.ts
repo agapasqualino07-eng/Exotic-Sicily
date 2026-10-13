@@ -12,7 +12,14 @@ export const heroSection = defineType({
   fields: [
     eyebrow,
     defineField({ name: "title", title: "Titolo", type: "string", validation: (r) => r.required() }),
-    defineField({ name: "highlight", title: "Parola da evidenziare nel titolo", type: "string", description: "Una parola o frase presente nel titolo: verrà scritta in corsivo colorato." }),
+    defineField({
+      name: "rotatingWords",
+      title: "Parole che si alternano dopo il titolo",
+      type: "array",
+      of: [{ type: "string" }],
+      description: "Es. mango, ananas, papaya: compaiono una dopo l'altra in fondo al titolo, in corsivo colorato. Lascia vuoto per un titolo fisso.",
+    }),
+    defineField({ name: "highlight", title: "Parola da evidenziare (solo se non usi le parole che si alternano)", type: "string" }),
     defineField({ name: "subtitle", title: "Sottotitolo", type: "text", rows: 3 }),
     cta("primaryCta", "Pulsante principale"),
     cta("secondaryCta", "Pulsante secondario"),
@@ -35,6 +42,37 @@ export const marqueeSection = defineType({
   type: "object",
   fields: [defineField({ name: "items", title: "Frasi", type: "array", of: [{ type: "string" }] })],
   preview: { prepare: () => ({ title: "Striscia scorrevole" }) },
+});
+
+export const showcaseSection = defineType({
+  name: "showcaseSection",
+  title: "Vetrina interattiva «Scegli il tuo frutto»",
+  type: "object",
+  description: "Il visitatore tocca un frutto: lo sfondo prende il suo colore e può aggiungerlo subito al carrello.",
+  fields: [
+    eyebrow,
+    defineField({ name: "title", title: "Titolo", type: "string" }),
+    defineField({ name: "subtitle", title: "Sottotitolo", type: "string" }),
+    defineField({ name: "products", title: "Prodotti (opzionale, max 8)", type: "array", of: [{ type: "reference", to: [{ type: "product" }] }], description: "Se vuoto mostra i primi 8 prodotti del catalogo.", validation: (r) => r.max(8) }),
+  ],
+  preview: { select: { title: "title" }, prepare: ({ title }) => ({ title: "Vetrina interattiva", subtitle: title }) },
+});
+
+export const compareSection = defineType({
+  name: "compareSection",
+  title: "Confronto etichetta",
+  type: "object",
+  fields: [
+    eyebrow,
+    defineField({ name: "title", title: "Titolo", type: "string" }),
+    defineField({ name: "text", title: "Testo", type: "text", rows: 2 }),
+    defineField({ name: "commonTitle", title: "Colonna sinistra — titolo", type: "string" }),
+    defineField({ name: "commonItems", title: "Colonna sinistra — voci (vengono barrate)", type: "array", of: [{ type: "string" }] }),
+    defineField({ name: "oursTitle", title: "Colonna destra — titolo", type: "string" }),
+    defineField({ name: "oursLabel", title: "Colonna destra — etichetta", type: "string" }),
+    defineField({ name: "note", title: "Nota sotto (opzionale)", type: "string" }),
+  ],
+  preview: { select: { title: "title" }, prepare: ({ title }) => ({ title: "Confronto etichetta", subtitle: title }) },
 });
 
 export const valuesSection = defineType({
@@ -152,5 +190,5 @@ export const ctaSection = defineType({
   preview: { select: { title: "title" }, prepare: ({ title }) => ({ title: "Invito finale", subtitle: title }) },
 });
 
-export const sectionTypes = [heroSection, marqueeSection, valuesSection, storySection, processSection, productsSection, testimonialsSection, faqSection, newsletterSection, ctaSection];
+export const sectionTypes = [heroSection, marqueeSection, showcaseSection, compareSection, valuesSection, storySection, processSection, productsSection, testimonialsSection, faqSection, newsletterSection, ctaSection];
 export const sectionMembers = sectionTypes.map((t) => defineArrayMember({ type: t.name }));

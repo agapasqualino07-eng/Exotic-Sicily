@@ -23,7 +23,7 @@ const CARD = `{
   "available": coalesce(available, true), shortDescription,
   "category": category->{ title, "slug": slug.current },
   "variants": variants[]{ "id": _key, label, price, "available": coalesce(available, true) },
-  "image": images[0]${IMG}, illustration
+  "image": images[0]${IMG}, illustration, ingredients
 }`;
 const FULL = `{
   _id, "slug": slug.current, name, price, compareAtPrice, format, badge, featured,
@@ -53,6 +53,7 @@ function seedCard(p: SeedProduct): ProductCardData {
     shortDescription: p.shortDescription,
     category: cat ? { title: cat.title, slug: cat.slug.current } : null,
     illustration: p.illustration,
+    ingredients: p.ingredients,
   };
 }
 function seedFull(p: SeedProduct): ProductData {

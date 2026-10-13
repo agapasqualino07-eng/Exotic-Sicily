@@ -12,7 +12,7 @@ const FOCUSABLE = 'a[href], button:not([disabled]), input, select, textarea, [ta
 export function CartButton() {
   const { count, setOpen } = useCart();
   return (
-    <button type="button" className="icon-btn" onClick={() => setOpen(true)} aria-label={`Apri il carrello, ${count} ${count === 1 ? "articolo" : "articoli"}`}>
+    <button type="button" className="icon-btn" data-cart-icon onClick={() => setOpen(true)} aria-label={`Apri il carrello, ${count} ${count === 1 ? "articolo" : "articoli"}`}>
       <Icon name="cart" size={22} />
       <span className="cart-count" data-empty={count === 0} aria-hidden="true">{count}</span>
     </button>

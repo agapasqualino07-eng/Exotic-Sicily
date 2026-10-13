@@ -31,7 +31,7 @@ export function ProductCard({ product: p, priority = false }: { product: Product
   const href = `/prodotti/${p.slug}`;
 
   return (
-    <article className={`product-card${available ? "" : " is-soldout"}`}>
+    <article className={`product-card${available ? "" : " is-soldout"}`} data-reveal>
       <Link href={href} className="product-media" aria-label={p.name} tabIndex={-1}>
         {badge ? <span className={`product-badge${available ? "" : " sold-out"}`}>{badge}</span> : null}
         <ProductMedia product={p} sizes="(min-width: 1024px) 280px, (min-width: 640px) 45vw, 90vw" priority={priority} />

@@ -1,94 +1,146 @@
 import Link from "next/link";
-import { getFaqs, getFeaturedProducts, getTestimonials } from "@/lib/content";
+import { getFaqs, getFeaturedProducts, getProducts, getTestimonials } from "@/lib/content";
+import { imageUrl } from "@/lib/image";
 import type { HomeSection, Link as L, ProductCardData } from "@/lib/types";
 import { FaqList } from "./Faq";
-import { Icon } from "./Icon";
+import { FRUIT, Icon } from "./Icon";
 import { NewsletterForm } from "./NewsletterForm";
 import { ProductArt } from "./ProductArt";
-import { ProductGrid } from "./ProductCard";
-import { Reveal } from "./Reveal";
+import { ProductGrid, toSnapshot } from "./ProductCard";
 import { SanityImage } from "./SanityImage";
+import { FruitShowcase, type ShowcaseItem } from "./motion/FruitShowcase";
+import { HeroMotion } from "./motion/HeroMotion";
+import { LabelCompare } from "./motion/LabelCompare";
+import { ProcessScroll } from "./motion/ProcessScroll";
+import { RotatingWord } from "./motion/RotatingWord";
 
-const Head = ({ eyebrow, title, subtitle, left }: { eyebrow?: string; title?: string; subtitle?: string; left?: boolean }) => (
-  <div className={`section-head${left ? " left" : ""}`}>
+const Head = ({ eyebrow, title, subtitle }: { eyebrow?: string; title?: string; subtitle?: string }) => (
+  <div className="section-head" data-reveal>
     {eyebrow ? <span className="eyebrow">{eyebrow}</span> : null}
     {title ? <h2>{title}</h2> : null}
     {subtitle ? <p>{subtitle}</p> : null}
   </div>
 );
 
-const Cta = ({ link, variant = "primary" }: { link?: L; variant?: "primary" | "outline" | "light" }) =>
-  link?.label && link.href ? <Link href={link.href} className={`btn btn-${variant}`}>{link.label}</Link> : null;
+const Cta = ({ link, variant = "primary", magnetic }: { link?: L; variant?: "primary" | "outline" | "dark"; magnetic?: boolean }) =>
+  link?.label && link.href ? (
+    <Link href={link.href} className={`btn btn-${variant}`} {...(magnetic ? { "data-magnetic": "" } : {})}>
+      {link.label}{variant === "primary" ? <Icon name="arrow" size={18} /> : null}
+    </Link>
+  ) : null;
+
+const DEFAULT_ART = [
+  { icon: "mango", color: "#E8974A" },
+  { icon: "ananas", color: "#D9B23C" },
+  { icon: "papaya", color: "#E8734F" },
+];
 
 function Hero({ s, products }: { s: Extract<HomeSection, { _type: "heroSection" }>; products: ProductCardData[] }) {
-  const title = s.title;
-  const idx = s.highlight ? title.indexOf(s.highlight) : -1;
-  const arts = products.filter((p) => !p.image).slice(0, 3);
-  const defaults = [
-    { icon: "mango", color: "#E8974A" },
-    { icon: "ananas", color: "#D9B23C" },
-    { icon: "papaya", color: "#E8734F" },
-  ];
-  const pouches = (arts.length >= 3 ? arts.map((p) => p.illustration || defaults[0]) : defaults).slice(0, 3);
+  const words = (s.rotatingWords ?? []).filter(Boolean);
+  const idx = !words.length && s.highlight ? s.title.indexOf(s.highlight) : -1;
+  const arts = products.filter((p) => p.illustration?.icon).slice(0, 3).map((p) => ({ icon: p.illustration!.icon!, color: p.illustration!.color || "#E8974A" }));
+  const pouches = arts.length === 3 ? arts : DEFAULT_ART;
+
   return (
     <section className="hero">
-      <div className="container hero-grid">
-        <div className="hero-content">
-          {s.eyebrow ? <span className="eyebrow">{s.eyebrow}</span> : null}
-          <h1>
-            {idx >= 0 ? <>{title.slice(0, idx)}<em>{s.highlight}</em>{title.slice(idx + s.highlight!.length)}</> : title}
-          </h1>
-          {s.subtitle ? <p className="lead">{s.subtitle}</p> : null}
-          <div className="hero-cta">
-            <Cta link={s.primaryCta} />
-            <Cta link={s.secondaryCta} variant="outline" />
-          </div>
-          {s.trust?.length ? (
-            <ul className="hero-trust">
-              {s.trust.map((t) => <li key={t._key}><Icon name={t.icon || "leaf"} size={20} />{t.text}</li>)}
-            </ul>
-          ) : null}
+      <HeroMotion>
+        <div className="hero-bg" aria-hidden="true">
+          <span className="blob b1" data-depth="-0.6" />
+          <span className="blob b2" data-depth="-0.3" />
         </div>
-
-        <div className="hero-visual">
-          <div className="hero-arch">
-            {s.image?.asset ? (
-              <SanityImage image={s.image} ratio={4 / 5} widths={[480, 720, 960]} sizes="(min-width: 900px) 480px, 90vw" priority className="hero-photo" />
-            ) : (
-              <div className="hero-pouches" aria-hidden="true">
-                <ProductArt icon={pouches[1].icon} color={pouches[1].color} className="pouch p2" />
-                <ProductArt icon={pouches[0].icon} color={pouches[0].color} className="pouch p1" />
-                <ProductArt icon={pouches[2].icon} color={pouches[2].color} className="pouch p3" />
-              </div>
-            )}
-          </div>
-          {s.badgeTitle ? (
-            <div className="hero-badge">
-              <Icon name="shield" size={26} />
-              <div><strong>{s.badgeTitle}</strong><span>{s.badgeText}</span></div>
+        <div className="container hero-grid">
+          <div className="hero-content">
+            {s.eyebrow ? <span className="eyebrow" data-hero-in>{s.eyebrow}</span> : null}
+            <h1 data-hero-in>
+              {words.length ? (
+                <>
+                  <span className="hero-split">{s.title}</span>{" "}
+                  <span className="hero-rot"><RotatingWord words={words} /></span>
+                </>
+              ) : (
+                <span className="hero-split">
+                  {idx >= 0 ? <>{s.title.slice(0, idx)}<em>{s.highlight}</em>{s.title.slice(idx + s.highlight!.length)}</> : s.title}
+                </span>
+              )}
+            </h1>
+            {s.subtitle ? <p className="lead" data-hero-in>{s.subtitle}</p> : null}
+            <div className="hero-cta" data-hero-in>
+              <Cta link={s.primaryCta} magnetic />
+              <Cta link={s.secondaryCta} variant="outline" />
             </div>
-          ) : null}
+            {s.trust?.length ? (
+              <ul className="hero-trust" data-hero-in>
+                {s.trust.map((t) => <li key={t._key}><Icon name={t.icon || "leaf"} size={20} />{t.text}</li>)}
+              </ul>
+            ) : null}
+          </div>
+
+          <div className="hero-visual" data-hero-in>
+            <div className="hero-arch">
+              <span className="hero-sun" aria-hidden="true" />
+              {s.image?.asset ? (
+                <SanityImage image={s.image} ratio={4 / 5} widths={[480, 720, 960]} sizes="(min-width: 900px) 480px, 90vw" priority className="hero-photo" />
+              ) : (
+                <div className="hero-pouches" aria-hidden="true">
+                  <div className="pouch-wrap w2" data-depth="0.5"><ProductArt icon={pouches[1].icon} color={pouches[1].color} className="pouch" /></div>
+                  <div className="pouch-wrap w1" data-depth="1"><ProductArt icon={pouches[0].icon} color={pouches[0].color} className="pouch" /></div>
+                  <div className="pouch-wrap w3" data-depth="1.5"><ProductArt icon={pouches[2].icon} color={pouches[2].color} className="pouch" /></div>
+                </div>
+              )}
+            </div>
+            {pouches.map((p, n) => (
+              <span key={n} className={`hero-floater f${n}`} data-depth={String(2 + n)} aria-hidden="true" style={{ color: p.color }}>
+                <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">{FRUIT[p.icon]}</svg>
+              </span>
+            ))}
+            {s.badgeTitle ? (
+              <div className="hero-badge">
+                <Icon name="shield" size={26} />
+                <div><strong>{s.badgeTitle}</strong><span>{s.badgeText}</span></div>
+              </div>
+            ) : null}
+          </div>
         </div>
-      </div>
+        <a href="#dopo-hero" className="scroll-cue" aria-label="Scorri ai contenuti"><span /></a>
+      </HeroMotion>
+      <span id="dopo-hero" />
     </section>
   );
 }
 
+function toShowcase(p: ProductCardData): ShowcaseItem {
+  const hasVariants = (p.variants?.length ?? 0) > 0;
+  const price = hasVariants ? Math.min(...p.variants!.map((v) => v.price)) : p.price;
+  return {
+    slug: p.slug,
+    name: p.name,
+    short: p.shortDescription,
+    format: hasVariants ? p.variants![0].label : p.format,
+    price,
+    ingredients: p.ingredients,
+    color: p.illustration?.color || "#E8974A",
+    icon: p.illustration?.icon || "mango",
+    image: imageUrl(p.image, 640, 640),
+    available: p.available,
+    snapshot: hasVariants ? null : toSnapshot(p),
+  };
+}
+
 export async function HomeSections({ sections }: { sections: HomeSection[] }) {
-  const needsFeatured = sections.some((s) => s._type === "productsSection" && s.mode !== "manual");
-  const [featured, faqs, testimonials] = await Promise.all([
-    needsFeatured ? getFeaturedProducts() : Promise.resolve([]),
-    sections.some((s) => s._type === "faqSection") ? getFaqs(true) : Promise.resolve([]),
-    sections.some((s) => s._type === "testimonialsSection") ? getTestimonials() : Promise.resolve([]),
+  const has = (t: HomeSection["_type"]) => sections.some((s) => s._type === t);
+  const [featured, all, faqs, testimonials] = await Promise.all([
+    getFeaturedProducts(),
+    has("showcaseSection") ? getProducts() : Promise.resolve([] as ProductCardData[]),
+    has("faqSection") ? getFaqs(true) : Promise.resolve([]),
+    has("testimonialsSection") ? getTestimonials() : Promise.resolve([]),
   ]);
-  const heroProducts = featured.length ? featured : [];
 
   return (
     <>
       {sections.map((s) => {
         switch (s._type) {
           case "heroSection":
-            return <Hero key={s._key} s={s} products={heroProducts} />;
+            return <Hero key={s._key} s={s} products={featured} />;
 
           case "marqueeSection": {
             const items = s.items ?? [];
@@ -102,20 +154,30 @@ export async function HomeSections({ sections }: { sections: HomeSection[] }) {
             );
           }
 
+          case "showcaseSection": {
+            const list = (s.products?.filter(Boolean).length ? s.products! : all).slice(0, 8);
+            if (!list.length) return null;
+            return <FruitShowcase key={s._key} items={list.map(toShowcase)} eyebrow={s.eyebrow} title={s.title} subtitle={s.subtitle} />;
+          }
+
+          case "compareSection":
+            return (
+              <LabelCompare key={s._key} eyebrow={s.eyebrow} title={s.title} text={s.text} commonTitle={s.commonTitle} commonItems={s.commonItems ?? []} oursTitle={s.oursTitle} oursLabel={s.oursLabel} note={s.note} />
+            );
+
           case "valuesSection":
             return (
               <section key={s._key} className="section values">
                 <div className="container">
-                  <Reveal><Head {...s} /></Reveal>
+                  <Head {...s} />
                   <div className="values-grid">
                     {(s.items ?? []).map((v, i) => (
-                      <Reveal key={v._key} delay={i * 70}>
-                        <div className="value-card">
-                          <div className="value-icon"><Icon name={v.icon || "leaf"} size={26} /></div>
-                          <h3>{v.title}</h3>
-                          <p>{v.text}</p>
-                        </div>
-                      </Reveal>
+                      <div className="value-card" key={v._key} data-reveal>
+                        <span className="value-index" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
+                        <div className="value-icon"><Icon name={v.icon || "leaf"} size={26} /></div>
+                        <h3>{v.title}</h3>
+                        <p>{v.text}</p>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -125,20 +187,29 @@ export async function HomeSections({ sections }: { sections: HomeSection[] }) {
           case "storySection":
             return (
               <section key={s._key} className="story" id={s.anchor || undefined}>
+                <div className="story-deco" aria-hidden="true" data-parallax="-30">
+                  <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1.2">{FRUIT.mango}</svg>
+                </div>
                 <div className="container story-grid">
-                  <div className="story-visual">
-                    {s.image?.asset ? (
-                      <SanityImage image={s.image} ratio={4 / 5} widths={[400, 640, 900]} sizes="(min-width: 900px) 440px, 90vw" className="story-photo" />
-                    ) : (
-                      <Icon name="mapPin" size={120} strokeWidth={1.1} />
-                    )}
+                  <div className="story-visual" data-reveal>
+                    <div className="story-visual-inner" data-parallax="-8">
+                      {s.image?.asset ? (
+                        <SanityImage image={s.image} ratio={4 / 5} widths={[400, 640, 900]} sizes="(min-width: 900px) 440px, 90vw" className="story-photo" />
+                      ) : (
+                        <div className="story-art" aria-hidden="true">
+                          <ProductArt icon="cofanetto" color="#C97B3D" className="sa1" />
+                          <ProductArt icon="mango" color="#E8974A" className="sa2" />
+                          <span className="story-pin"><Icon name="mapPin" size={22} /> Sicilia</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div className="story-text">
-                    {s.eyebrow ? <span className="eyebrow">{s.eyebrow}</span> : null}
-                    <h2>{s.title}</h2>
-                    {(s.paragraphs ?? []).map((p, i) => <p key={i}>{p}</p>)}
+                    {s.eyebrow ? <span className="eyebrow" data-reveal>{s.eyebrow}</span> : null}
+                    <h2 data-reveal>{s.title}</h2>
+                    {(s.paragraphs ?? []).map((p, i) => <p key={i} data-reveal>{p}</p>)}
                     {s.signatureName ? (
-                      <div className="story-signature">
+                      <div className="story-signature" data-reveal>
                         <span className="sig-name">{s.signatureName}</span>
                         <span className="sig-role">{s.signatureRole}</span>
                       </div>
@@ -149,26 +220,7 @@ export async function HomeSections({ sections }: { sections: HomeSection[] }) {
             );
 
           case "processSection":
-            return (
-              <section key={s._key} className="section process">
-                <div className="container">
-                  <Reveal><Head {...s} /></Reveal>
-                  <ol className="process-grid">
-                    {(s.steps ?? []).map((st, i) => (
-                      <li key={st._key}>
-                        <Reveal delay={i * 90}>
-                          <div className="process-step">
-                            <div className="process-num" aria-hidden="true">{i + 1}</div>
-                            <h3>{st.title}</h3>
-                            <p>{st.text}</p>
-                          </div>
-                        </Reveal>
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              </section>
-            );
+            return <ProcessScroll key={s._key} eyebrow={s.eyebrow} title={s.title} subtitle={s.subtitle} steps={s.steps ?? []} />;
 
           case "productsSection": {
             const list = s.mode === "manual" ? (s.products ?? []).filter(Boolean) : featured;
@@ -176,7 +228,7 @@ export async function HomeSections({ sections }: { sections: HomeSection[] }) {
             return (
               <section key={s._key} className="section products-section">
                 <div className="container">
-                  <div className="products-head">
+                  <div className="products-head" data-reveal>
                     <div>
                       {s.eyebrow ? <span className="eyebrow">{s.eyebrow}</span> : null}
                       <h2>{s.title}</h2>
@@ -185,7 +237,7 @@ export async function HomeSections({ sections }: { sections: HomeSection[] }) {
                   </div>
                   <ProductGrid products={list} />
                   {s.ctaLabel ? (
-                    <div className="products-cta"><Link href={s.ctaHref || "/store"} className="btn btn-primary">{s.ctaLabel}</Link></div>
+                    <div className="products-cta"><Link href={s.ctaHref || "/store"} className="btn btn-primary">{s.ctaLabel}<Icon name="arrow" size={18} /></Link></div>
                   ) : null}
                 </div>
               </section>
@@ -200,7 +252,7 @@ export async function HomeSections({ sections }: { sections: HomeSection[] }) {
                   <Head {...s} />
                   <div className="testimonial-grid">
                     {testimonials.slice(0, 3).map((t) => (
-                      <figure key={t._id} className="testimonial">
+                      <figure key={t._id} className="testimonial" data-reveal>
                         {t.rating ? <div className="stars" role="img" aria-label={`${t.rating} stelle su 5`}>{Array.from({ length: t.rating }).map((_, i) => <Icon key={i} name="star" size={16} fill="currentColor" />)}</div> : null}
                         <blockquote>{t.quote}</blockquote>
                         <figcaption>{t.author}{t.location ? `, ${t.location}` : ""}{t.productName ? ` · ${t.productName}` : ""}</figcaption>
@@ -217,7 +269,7 @@ export async function HomeSections({ sections }: { sections: HomeSection[] }) {
               <section key={s._key} className="section faq-section">
                 <div className="container narrow">
                   <Head {...s} />
-                  <FaqList items={faqs} />
+                  <div data-reveal><FaqList items={faqs} /></div>
                   <p className="faq-more"><Link href="/faq">Tutte le domande frequenti <Icon name="arrow" size={16} /></Link></p>
                 </div>
               </section>
@@ -226,7 +278,10 @@ export async function HomeSections({ sections }: { sections: HomeSection[] }) {
           case "newsletterSection":
             return (
               <section key={s._key} className="newsletter">
-                <div className="container">
+                <div className="newsletter-deco" aria-hidden="true" data-parallax="-25">
+                  {["kiwi", "ananas", "cocco"].map((f) => <svg key={f} viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="2">{FRUIT[f]}</svg>)}
+                </div>
+                <div className="container" data-reveal>
                   {s.eyebrow ? <span className="eyebrow">{s.eyebrow}</span> : null}
                   <h2>{s.title}</h2>
                   {s.text ? <p>{s.text}</p> : null}
@@ -239,11 +294,18 @@ export async function HomeSections({ sections }: { sections: HomeSection[] }) {
           case "ctaSection":
             return (
               <section key={s._key} className="final-cta">
-                <div className="container">
+                <div className="final-deco" aria-hidden="true">
+                  {DEFAULT_ART.map((p, n) => (
+                    <div key={n} className={`final-pouch fp${n}`} data-parallax={String(-20 - n * 15)}>
+                      <ProductArt icon={p.icon} color={p.color} />
+                    </div>
+                  ))}
+                </div>
+                <div className="container" data-reveal>
                   {s.eyebrow ? <span className="eyebrow">{s.eyebrow}</span> : null}
                   <h2>{s.title}</h2>
                   {s.text ? <p>{s.text}</p> : null}
-                  <Cta link={s.cta} />
+                  <Cta link={s.cta} magnetic />
                 </div>
               </section>
             );

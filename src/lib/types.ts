@@ -26,12 +26,12 @@ export type ProductCardData = {
   variants?: Variant[] | null;
   image?: SImage | null;
   illustration?: { icon?: string; color?: string } | null;
+  ingredients?: string | null;
 };
 
 export type ProductData = ProductCardData & {
   description?: PortableTextBlock[] | null;
   images?: SImage[] | null;
-  ingredients?: string | null;
   allergens?: string | null;
   dietary?: string[] | null;
   nutrition?: { label: string; value: string }[] | null;
@@ -84,12 +84,14 @@ export type HomeSection = Keyed &
   (
     | {
         _type: "heroSection";
-        eyebrow?: string; title: string; highlight?: string; subtitle?: string;
+        eyebrow?: string; title: string; highlight?: string; rotatingWords?: string[]; subtitle?: string;
         primaryCta?: Link; secondaryCta?: Link; image?: SImage | null;
         badgeTitle?: string; badgeText?: string;
         trust?: { _key: string; icon?: string; text?: string }[];
       }
     | { _type: "marqueeSection"; items?: string[] }
+    | { _type: "showcaseSection"; eyebrow?: string; title?: string; subtitle?: string; products?: ProductCardData[] | null }
+    | { _type: "compareSection"; eyebrow?: string; title?: string; text?: string; commonTitle?: string; commonItems?: string[]; oursTitle?: string; oursLabel?: string; note?: string }
     | { _type: "valuesSection"; eyebrow?: string; title?: string; subtitle?: string; items?: { _key: string; icon?: string; title?: string; text?: string }[] }
     | { _type: "storySection"; anchor?: string; eyebrow?: string; title?: string; paragraphs?: string[]; image?: SImage | null; signatureName?: string; signatureRole?: string }
     | { _type: "processSection"; eyebrow?: string; title?: string; subtitle?: string; steps?: { _key: string; title?: string; text?: string }[] }
