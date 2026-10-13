@@ -135,7 +135,7 @@ export async function getProduct(slug: string): Promise<ProductData | null> {
   const p = await query<ProductData | null>(`*[_type == "product" && slug.current == $slug][0] ${FULL}`, { slug }, ["product"]);
   if (p && !p.related?.length) {
     const others = await query<ProductCardData[]>(
-      `*[_type == "product" && slug.current != $slug && defined(slug.current)] | order(category->slug.current == $cat desc, order asc)[0...4] ${CARD}`,
+      `*[_type == "product" && slug.current != $slug && defined(slug.current)] | order(select(category->slug.current == $cat => 0, 1) asc, order asc)[0...4] ${CARD}`,
       { slug, cat: p.category?.slug ?? "" }, ["product"],
     );
     p.related = others;
