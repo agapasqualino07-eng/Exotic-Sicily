@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { revalidateTag } from "next/cache";
-import { writeClient } from "@/lib/sanity-client";
+import { client as readClient, writeClient } from "@/lib/sanity-client";
 import { allDocuments } from "@/lib/seed-data.mjs";
 
 export const runtime = "nodejs";
@@ -38,6 +38,17 @@ export async function GET(req: NextRequest) {
       { status: 500, headers: { "Content-Type": "text/plain; charset=utf-8" } },
     );
   }
-  for (const t of ["settings", "home", "store", "product", "category", "faq", "page"]) revalidateTag(t, "max");
-  return new NextResponse(`Fatto: ${allDocuments.length} contenuti verificati/creati in Sanity. Apri /studio per modificarli.`, { headers: { "Content-Type": "text/plain; charset=utf-8" } });
+  for (const t of ["settings", "home", "store", "product", "category", "faq", "page"]) {
+    try { revalidateTag(t, "max"); } catch { /* la cache si aggiorna comunque entro 60 secondi */ }
+  }
+  const visible = await readClient
+    .withConfig({ useCdn: false })
+    .fetch<{ p: number; f: number; pg: number }>(`{ "p": count(*[_type == "product"]), "f": count(*[_type == "faqItem"]), "pg": count(*[_type == "page"]) }`, {}, { cache: "no-store" })
+    .catch(() => null);
+  return new NextResponse(
+    `Fatto: ${allDocuments.length} contenuti verificati/creati in Sanity.\n` +
+      (visible ? `Il sito vede ora: ${visible.p} prodotti, ${visible.f} domande frequenti, ${visible.pg} pagine.\n` : "") +
+      `Le pagine si aggiornano entro un minuto. Apri /studio per modificare i contenuti.`,
+    { headers: { "Content-Type": "text/plain; charset=utf-8" } },
+  );
 }
