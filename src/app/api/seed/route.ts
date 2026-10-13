@@ -10,6 +10,8 @@ export const dynamic = "force-dynamic";
  * Carica i contenuti di partenza in Sanity direttamente dal browser:
  *   https://TUOSITO/api/seed?secret=<SANITY_REVALIDATE_SECRET>
  * Crea solo i documenti che mancano: non sovrascrive mai le tue modifiche.
+ * Con &aggiorna=1 riscrive i contenuti di partenza con l'ultima versione dei testi
+ * (sovrascrive SOLO i documenti creati dal seed, non quelli aggiunti da te).
  */
 export async function GET(req: NextRequest) {
   const secret = process.env.SANITY_REVALIDATE_SECRET;
@@ -22,7 +24,11 @@ export async function GET(req: NextRequest) {
   const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || "production";
   try {
     const tx = client.transaction();
-    for (const doc of allDocuments) tx.createIfNotExists(doc as { _id: string; _type: string });
+    const overwrite = req.nextUrl.searchParams.get("aggiorna") === "1";
+    for (const doc of allDocuments) {
+      if (overwrite) tx.createOrReplace(doc as { _id: string; _type: string });
+      else tx.createIfNotExists(doc as { _id: string; _type: string });
+    }
     await tx.commit();
   } catch (err) {
     const e = err as { statusCode?: number; message?: string };
@@ -38,7 +44,7 @@ export async function GET(req: NextRequest) {
       { status: 500, headers: { "Content-Type": "text/plain; charset=utf-8" } },
     );
   }
-  for (const t of ["settings", "home", "store", "product", "category", "faq", "page"]) {
+  for (const t of ["settings", "home", "store", "product", "category", "faq", "page", "article"]) {
     try { revalidateTag(t, "max"); } catch { /* la cache si aggiorna comunque entro 60 secondi */ }
   }
   const visible = await readClient
@@ -46,7 +52,7 @@ export async function GET(req: NextRequest) {
     .fetch<{ p: number; f: number; pg: number }>(`{ "p": count(*[_type == "product"]), "f": count(*[_type == "faqItem"]), "pg": count(*[_type == "page"]) }`, {}, { cache: "no-store" })
     .catch(() => null);
   return new NextResponse(
-    `Fatto: ${allDocuments.length} contenuti verificati/creati in Sanity.\n` +
+    `Fatto: ${allDocuments.length} contenuti ${req.nextUrl.searchParams.get("aggiorna") === "1" ? "aggiornati con i testi nuovi" : "verificati/creati"} in Sanity.\n` +
       (visible ? `Il sito vede ora: ${visible.p} prodotti, ${visible.f} domande frequenti, ${visible.pg} pagine.\n` : "") +
       `Le pagine si aggiornano entro un minuto. Apri /studio per modificare i contenuti.`,
     { headers: { "Content-Type": "text/plain; charset=utf-8" } },

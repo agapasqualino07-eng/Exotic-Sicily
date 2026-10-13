@@ -78,7 +78,7 @@ export function CartProvider({ config, children }: { config: CartConfig; childre
       }
       return [...prev, { ...item, qty: Math.min(MAX_QTY, qty) }];
     });
-    flash(`${item.name} aggiunto al carrello`);
+    flash(`${item.name}: nel carrello`);
   }, [flash]);
 
   const setQty = useCallback((key: string, qty: number) => {

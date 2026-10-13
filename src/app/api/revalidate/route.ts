@@ -11,6 +11,7 @@ const TAGS: Record<string, string[]> = {
   siteSettings: ["settings"],
   homePage: ["home"],
   storePage: ["store"],
+  article: ["article"],
 };
 
 /** Sanity chiama questo indirizzo ogni volta che pubblichi: il sito si aggiorna in pochi secondi. */

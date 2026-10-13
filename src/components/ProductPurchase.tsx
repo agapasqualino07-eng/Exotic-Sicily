@@ -73,7 +73,7 @@ export function ProductPurchase({
             </button>
           </div>
         ) : (
-          <p className="soldout-note"><Icon name="clock" size={18} /> Al momento esaurito. Scrivici per sapere quando torna disponibile.</p>
+          <p className="soldout-note"><Icon name="clock" size={18} /> Finito. Scrivici e ti avvisiamo quando torna.</p>
         )}
       </div>
 

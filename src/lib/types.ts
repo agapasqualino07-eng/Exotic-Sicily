@@ -35,6 +35,7 @@ export type ProductData = ProductCardData & {
   allergens?: string | null;
   dietary?: string[] | null;
   nutrition?: { label: string; value: string }[] | null;
+  howTo?: string[] | null;
   storage?: string | null;
   origin?: string | null;
   seoTitle?: string | null;
@@ -42,7 +43,7 @@ export type ProductData = ProductCardData & {
   related?: ProductCardData[] | null;
 };
 
-export type CategoryData = { _id: string; title: string; slug: string; description?: string };
+export type CategoryData = { _id: string; title: string; slug: string; description?: string; intro?: string; seoTitle?: string; seoDescription?: string };
 
 export type SiteSettings = {
   brandName: string;
@@ -107,4 +108,9 @@ export type StorePageData = {
   eyebrow?: string; title?: string; subtitle?: string;
   infoCards?: { _key: string; icon?: string; title?: string; text?: string }[];
   seoTitle?: string; seoDescription?: string;
+};
+
+export type ArticleData = {
+  _id: string; title: string; slug: string; excerpt: string; cover?: SImage | null;
+  publishedAt?: string; updatedAt?: string; author?: string; body?: PortableTextBlock[]; products?: ProductCardData[] | null; seoTitle?: string;
 };

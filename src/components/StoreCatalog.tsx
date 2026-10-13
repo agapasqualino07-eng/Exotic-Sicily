@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { CategoryData, ProductCardData } from "@/lib/types";
 import { Icon } from "./Icon";
@@ -15,40 +15,37 @@ const SORTS = [
 
 const minPrice = (p: ProductCardData) => (p.variants?.length ? Math.min(...p.variants.map((v) => v.price)) : p.price);
 
-export function StoreCatalog({ products, categories }: { products: ProductCardData[]; categories: CategoryData[] }) {
-  const router = useRouter();
-  const params = useSearchParams();
-  const cat = params.get("categoria") || "tutti";
+/** Catalogo con categorie come pagine vere (/store/<categoria>: indicizzabili), ricerca e ordinamento. */
+export function StoreCatalog({ products, categories, active = "tutti" }: { products: ProductCardData[]; categories: CategoryData[]; active?: string }) {
   const [sort, setSort] = useState("featured");
   const [q, setQ] = useState("");
 
   const visible = useMemo(() => {
     const term = q.trim().toLowerCase();
-    let list = products.filter((p) => (cat === "tutti" || p.category?.slug === cat) && (!term || `${p.name} ${p.shortDescription} ${p.category?.title ?? ""}`.toLowerCase().includes(term)));
+    let list = products.filter((p) => (active === "tutti" || p.category?.slug === active) && (!term || `${p.name} ${p.shortDescription} ${p.category?.title ?? ""} ${p.ingredients ?? ""}`.toLowerCase().includes(term)));
     if (sort === "price-asc") list = [...list].sort((a, b) => minPrice(a) - minPrice(b));
     else if (sort === "price-desc") list = [...list].sort((a, b) => minPrice(b) - minPrice(a));
     else if (sort === "name") list = [...list].sort((a, b) => a.name.localeCompare(b.name, "it"));
     return list;
-  }, [products, cat, sort, q]);
+  }, [products, active, sort, q]);
 
-  const setCat = (slug: string) => router.replace(slug === "tutti" ? "/store" : `/store?categoria=${slug}`, { scroll: false });
   const tabs = [{ slug: "tutti", title: "Tutti" }, ...categories.map((c) => ({ slug: c.slug, title: c.title }))];
 
   return (
     <>
       <div className="catalog-bar">
-        <div className="filters" role="group" aria-label="Filtra per categoria">
+        <nav className="filters" aria-label="Categorie">
           {tabs.map((t) => (
-            <button key={t.slug} type="button" className={`filter-btn${cat === t.slug ? " active" : ""}`} aria-pressed={cat === t.slug} onClick={() => setCat(t.slug)}>
+            <Link key={t.slug} href={t.slug === "tutti" ? "/store" : `/store/${t.slug}`} scroll={false} className={`filter-btn${active === t.slug ? " active" : ""}`} aria-current={active === t.slug ? "page" : undefined}>
               {t.title}
-            </button>
+            </Link>
           ))}
-        </div>
+        </nav>
         <div className="catalog-tools">
           <label className="search">
             <span className="sr-only">Cerca un prodotto</span>
             <Icon name="search" size={18} />
-            <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cerca…" />
+            <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cerca un frutto…" />
           </label>
           <label className="select">
             <span className="sr-only">Ordina per</span>
@@ -67,8 +64,8 @@ export function StoreCatalog({ products, categories }: { products: ProductCardDa
         </div>
       ) : (
         <div className="empty-state">
-          <p>Nessun prodotto corrisponde alla ricerca.</p>
-          <button type="button" className="btn btn-outline" onClick={() => { setQ(""); setCat("tutti"); }}>Mostra tutto il catalogo</button>
+          <p>Niente da fare, questo frutto non ce l&apos;abbiamo. Ancora.</p>
+          <button type="button" className="btn btn-outline" onClick={() => setQ("")}>Mostra tutto</button>
         </div>
       )}
     </>

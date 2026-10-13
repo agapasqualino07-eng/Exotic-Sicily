@@ -1,9 +1,9 @@
 import Link from "next/link";
-import type { SiteSettings } from "@/lib/types";
+import type { CategoryData, SiteSettings } from "@/lib/types";
 import { Icon } from "./Icon";
 import { Brand } from "./Header";
 
-export function Footer({ settings }: { settings: SiteSettings }) {
+export function Footer({ settings, categories = [] }: { settings: SiteSettings; categories?: CategoryData[] }) {
   const s = settings.social ?? {};
   const socials = [
     { name: "instagram", href: s.instagram, label: "Instagram" },
@@ -30,14 +30,16 @@ export function Footer({ settings }: { settings: SiteSettings }) {
           </div>
 
           <nav className="footer-col" aria-label="Esplora">
-            <h2>Esplora</h2>
+            <p className="footer-title">Esplora</p>
             <ul>
               {(settings.navigation ?? []).map((n) => <li key={n._key ?? n.href}><Link href={n.href ?? "/"}>{n.label}</Link></li>)}
+              {categories.map((c) => <li key={c._id}><Link href={`/store/${c.slug}`}>{c.title}</Link></li>)}
+              <li><Link href="/journal">Journal</Link></li>
             </ul>
           </nav>
 
           <nav className="footer-col" aria-label="Assistenza">
-            <h2>Assistenza</h2>
+            <p className="footer-title">Assistenza</p>
             <ul>
               {(settings.footerLinks ?? []).map((n) => <li key={n._key ?? n.href}><Link href={n.href ?? "/"}>{n.label}</Link></li>)}
               {email ? <li><a href={`mailto:${email}`}>{email}</a></li> : null}
@@ -45,7 +47,7 @@ export function Footer({ settings }: { settings: SiteSettings }) {
           </nav>
 
           <div className="footer-col">
-            <h2>Pagamenti</h2>
+            <p className="footer-title">Pagamenti</p>
             <p className="payment-note">{settings.paymentNote}</p>
             <div className="payment-icons" aria-hidden="true">
               <span>VISA</span><span>MASTERCARD</span><span>APPLE&nbsp;PAY</span><span>GOOGLE&nbsp;PAY</span>

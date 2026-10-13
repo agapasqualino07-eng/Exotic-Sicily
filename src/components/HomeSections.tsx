@@ -50,26 +50,27 @@ function Hero({ s, products }: { s: Extract<HomeSection, { _type: "heroSection" 
         </div>
         <div className="container hero-grid">
           <div className="hero-content">
-            {s.eyebrow ? <span className="eyebrow" data-hero-in>{s.eyebrow}</span> : null}
-            <h1 data-hero-in>
+            {/* H1 corto e con la parola chiave principale; il titolone è un paragrafo grande */}
+            {s.eyebrow ? <h1 className="eyebrow hero-in" style={{ ["--d" as string]: "0ms" }}>{s.eyebrow}</h1> : null}
+            <p className="hero-title hero-in" style={{ ["--d" as string]: "80ms" }}>
               {words.length ? (
                 <>
-                  <span className="hero-split">{s.title}</span>{" "}
+                  <span>{s.title}</span>{" "}
                   <span className="hero-rot"><RotatingWord words={words} /></span>
                 </>
+              ) : idx >= 0 ? (
+                <>{s.title.slice(0, idx)}<em>{s.highlight}</em>{s.title.slice(idx + s.highlight!.length)}</>
               ) : (
-                <span className="hero-split">
-                  {idx >= 0 ? <>{s.title.slice(0, idx)}<em>{s.highlight}</em>{s.title.slice(idx + s.highlight!.length)}</> : s.title}
-                </span>
+                s.title
               )}
-            </h1>
-            {s.subtitle ? <p className="lead" data-hero-in>{s.subtitle}</p> : null}
-            <div className="hero-cta" data-hero-in>
+            </p>
+            {s.subtitle ? <p className="lead hero-in" style={{ ["--d" as string]: "200ms" }}>{s.subtitle}</p> : null}
+            <div className="hero-cta hero-in" style={{ ["--d" as string]: "300ms" }}>
               <Cta link={s.primaryCta} magnetic />
               <Cta link={s.secondaryCta} variant="outline" />
             </div>
             {s.trust?.length ? (
-              <ul className="hero-trust" data-hero-in>
+              <ul className="hero-trust hero-in" style={{ ["--d" as string]: "400ms" }}>
                 {s.trust.map((t) => <li key={t._key}><Icon name={t.icon || "leaf"} size={20} />{t.text}</li>)}
               </ul>
             ) : null}

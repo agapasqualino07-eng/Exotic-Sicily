@@ -1,5 +1,5 @@
 import { Analytics } from "@vercel/analytics/next";
-import { getSettings } from "@/lib/content";
+import { getCategories, getSettings } from "@/lib/content";
 import { SITE_URL } from "@/lib/format";
 import { CartDrawer } from "./CartDrawer";
 import { CartProvider } from "./CartProvider";
@@ -10,7 +10,7 @@ import { MotionRoot } from "./motion/MotionRoot";
 
 /** Struttura comune a tutte le pagine del negozio (non allo Studio). */
 export async function SiteShell({ children }: { children: React.ReactNode }) {
-  const settings = await getSettings();
+  const [settings, categories] = await Promise.all([getSettings(), getCategories()]);
   const sameAs = Object.values(settings.social ?? {}).filter(Boolean);
   const org = {
     "@context": "https://schema.org",
@@ -43,7 +43,7 @@ export async function SiteShell({ children }: { children: React.ReactNode }) {
         <MotionRoot />
         <Header settings={settings} />
         <main id="contenuto">{children}</main>
-        <Footer settings={settings} />
+        <Footer settings={settings} categories={categories} />
         <CartDrawer />
       </CartProvider>
       <JsonLd data={org} />

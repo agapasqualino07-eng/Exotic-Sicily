@@ -132,6 +132,14 @@ export const product = defineType({
         }),
       ],
     }),
+    defineField({
+      name: "howTo",
+      title: "Come mangiarlo (idee)",
+      type: "array",
+      group: "details",
+      of: [{ type: "string" }],
+      description: "Una idea per riga, es. «Nello yogurt della mattina». Mostrate nella pagina prodotto.",
+    }),
     defineField({ name: "storage", title: "Conservazione", type: "text", rows: 2, group: "details" }),
     defineField({ name: "origin", title: "Origine / lavorazione", type: "text", rows: 2, group: "details" }),
     defineField({

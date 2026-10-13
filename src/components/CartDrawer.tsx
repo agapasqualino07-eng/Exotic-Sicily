@@ -67,9 +67,9 @@ export function CartDrawer() {
       const data = await res.json().catch(() => ({}));
       if (res.ok && data.url) { window.location.href = data.url; return; }
       if (data.mode === "email") { setEmailMode(true); return; }
-      setError(data.error || "Non siamo riusciti ad avviare il pagamento. Riprova tra poco.");
+      setError(data.error || "Il pagamento non è partito. Riprova tra un attimo.");
     } catch {
-      setError("Connessione assente. Riprova tra poco.");
+      setError("Sembra che la connessione sia andata. Riprova tra un attimo.");
     } finally {
       setBusy(false);
     }
@@ -86,7 +86,7 @@ export function CartDrawer() {
       <div className={`overlay${open ? " open" : ""}`} onClick={() => setOpen(false)} aria-hidden="true" />
       <aside ref={panel} className={`cart-drawer${open ? " open" : ""}`} role="dialog" aria-modal="true" aria-label="Carrello" aria-hidden={!open} inert={!open}>
         <div className="cart-head">
-          <h2>Il tuo carrello{count ? <span> ({count})</span> : null}</h2>
+          <p className="cart-title">Il tuo carrello{count ? <span> ({count})</span> : null}</p>
           <button type="button" className="icon-btn" onClick={() => setOpen(false)} aria-label="Chiudi il carrello" data-autofocus><Icon name="close" size={22} /></button>
         </div>
 
@@ -94,8 +94,8 @@ export function CartDrawer() {
           <div className="ship-progress" role="status">
             <p>
               {missing > 0
-                ? <>Ti mancano <strong>{formatPrice(missing)}</strong> per la spedizione gratuita</>
-                : <><Icon name="check" size={16} /> Hai la <strong>spedizione gratuita</strong></>}
+                ? <>Ti mancano <strong>{formatPrice(missing)}</strong> per la spedizione gratis</>
+                : <><Icon name="check" size={16} /> Spedizione <strong>gratis</strong>. Ce l&apos;hai fatta.</>}
             </p>
             <div className="bar" aria-hidden="true"><span style={{ width: `${progress}%` }} /></div>
           </div>
@@ -105,8 +105,8 @@ export function CartDrawer() {
           {lines.length === 0 ? (
             <div className="cart-empty">
               <Icon name="bag" size={44} />
-              <p>Il tuo carrello è vuoto.<br />Aggiungi qualche sapore esotico.</p>
-              <Link href="/store" className="btn btn-primary" onClick={() => setOpen(false)}>Scopri i prodotti</Link>
+              <p>Il carrello è vuoto.<br />Succede ai migliori.</p>
+              <Link href="/store" className="btn btn-primary" onClick={() => setOpen(false)}>Riempilo</Link>
             </div>
           ) : (
             lines.map((l) => {
@@ -148,7 +148,7 @@ export function CartDrawer() {
 
             {emailMode ? (
               <div className="email-order">
-                <p>Il pagamento online non è ancora attivo: invia il tuo ordine e ti rispondiamo di persona per confermarlo.</p>
+                <p>Il pagamento online arriva a breve. Intanto mandaci l&apos;ordine: ti rispondiamo noi per confermarlo.</p>
                 <a className="btn btn-primary btn-block" href={mailHref}><Icon name="mail" size={18} /> Ordina via email</a>
                 {waHref ? <a className="btn btn-outline btn-block" href={waHref} target="_blank" rel="noopener noreferrer"><Icon name="whatsapp" size={18} /> Ordina su WhatsApp</a> : null}
               </div>
@@ -158,7 +158,7 @@ export function CartDrawer() {
               </button>
             )}
             {error ? <p className="form-error" role="alert">{error}</p> : null}
-            <p className="cart-notice"><Icon name="shield" size={16} /> Pagamento sicuro con Stripe. Spedizione e sconti si confermano al pagamento.</p>
+            <p className="cart-notice"><Icon name="shield" size={16} /> Paghi con Stripe. Codici sconto e indirizzo li inserisci al passo successivo.</p>
           </div>
         ) : null}
       </aside>

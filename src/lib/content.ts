@@ -6,7 +6,7 @@
 import { client, hasSanity } from "./sanity-client";
 import * as seed from "./seed-data.mjs";
 import type {
-  CategoryData, FaqData, HomePageData, PageData, ProductCardData, ProductData,
+  ArticleData, CategoryData, FaqData, HomePageData, PageData, ProductCardData, ProductData,
   SiteSettings, StorePageData, TestimonialData,
 } from "./types";
 
@@ -31,7 +31,7 @@ const FULL = `{
   "category": category->{ title, "slug": slug.current },
   "variants": variants[]{ "id": _key, label, price, "available": coalesce(available, true) },
   "image": images[0]${IMG}, "images": images[]${IMG}, illustration,
-  ingredients, allergens, dietary, nutrition, storage, origin, seoTitle, seoDescription,
+  ingredients, allergens, dietary, nutrition, howTo, storage, origin, seoTitle, seoDescription,
   "related": related[]->${CARD}
 }`;
 
@@ -62,6 +62,7 @@ function seedFull(p: SeedProduct): ProductData {
     description: p.description as ProductData["description"],
     ingredients: p.ingredients,
     dietary: p.dietary,
+    howTo: (p as { howTo?: string[] }).howTo ?? null,
     storage: p.storage,
     origin: p.origin,
   };
@@ -131,9 +132,9 @@ export async function getProductSlugs(): Promise<{ slug: string; updatedAt?: str
 
 export async function getCategories(): Promise<CategoryData[]> {
   if (!hasSanity)
-    return seed.categories.map((c) => ({ _id: c._id, title: c.title, slug: c.slug.current, description: c.description }));
+    return seed.categories.map((c) => ({ _id: c._id, title: c.title, slug: c.slug.current, description: c.description, intro: c.intro, seoTitle: c.seoTitle, seoDescription: c.seoDescription }));
   return query<CategoryData[]>(
-    `*[_type == "category" && defined(slug.current)] | order(order asc, title asc){ _id, title, "slug": slug.current, description }`, {}, ["category"],
+    `*[_type == "category" && defined(slug.current)] | order(order asc, title asc){ _id, title, "slug": slug.current, description, intro, seoTitle, seoDescription }`, {}, ["category"],
   );
 }
 
@@ -174,5 +175,30 @@ export async function getProductsForCheckout(slugs: string[]): Promise<ProductCa
   if (!hasSanity) return [];
   return client.withConfig({ useCdn: false }).fetch<ProductCardData[]>(
     `*[_type == "product" && slug.current in $slugs] ${CARD}`, { slugs }, { cache: "no-store" },
+  );
+}
+
+/* ------------------------------ JOURNAL ---------------------------------- */
+type SeedArticle = (typeof seed.articles)[number];
+const seedArticle = (a: SeedArticle): ArticleData => ({
+  _id: a._id, title: a.title, slug: a.slug.current, excerpt: a.excerpt, publishedAt: a.publishedAt, author: a.author, seoTitle: (a as { seoTitle?: string }).seoTitle,
+  body: a.body as ArticleData["body"],
+  products: (a.products as { _ref: string }[]).map((r) => seed.products.find((p) => p._id === r._ref)).filter((p): p is SeedProduct => Boolean(p)).map(seedCard),
+});
+
+export async function getArticles(): Promise<ArticleData[]> {
+  if (!hasSanity) return seed.articles.map(seedArticle);
+  return query<ArticleData[]>(
+    `*[_type == "article" && defined(slug.current)] | order(publishedAt desc){ _id, title, "slug": slug.current, excerpt, cover${IMG}, publishedAt, "updatedAt": _updatedAt, author }`, {}, ["article"],
+  );
+}
+
+export async function getArticle(slug: string): Promise<ArticleData | null> {
+  if (!hasSanity) {
+    const a = seed.articles.find((x) => x.slug.current === slug);
+    return a ? seedArticle(a) : null;
+  }
+  return query<ArticleData | null>(
+    `*[_type == "article" && slug.current == $slug][0]{ _id, title, "slug": slug.current, excerpt, cover${IMG}, publishedAt, "updatedAt": _updatedAt, author, body, seoTitle, "products": products[]->${CARD} }`, { slug }, ["article", "product"],
   );
 }

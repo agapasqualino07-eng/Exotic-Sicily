@@ -8,6 +8,10 @@ const nextConfig = {
     // immagini del piano gratuito di Vercel. Vedi src/components/SanityImage.tsx
     remotePatterns: [{ protocol: "https", hostname: "cdn.sanity.io" }],
   },
+  async redirects() {
+    // vecchi link ai filtri (/store?categoria=x) → pagine categoria vere
+    return [{ source: "/store", has: [{ type: "query", key: "categoria", value: "(?<cat>[a-z0-9-]+)" }], destination: "/store/:cat", permanent: true }];
+  },
   async headers() {
     return [
       {

@@ -1,6 +1,6 @@
 # Product Marketing Context — Exotic Dry Sicily
 
-**Document version:** v1
+**Document version:** v2
 **Last updated:** 2026-10-13
 
 > Bozza generata dal codice e dai testi del sito. Le voci marcate **[DA CONFERMARE]** sono ipotesi: correggetele, le altre skill di marketing leggono questo file.
@@ -60,9 +60,23 @@
 **Words to avoid:** "superfood", "detox", claim salutistici non autorizzati (es. "fa dimagrire", "rafforza le difese"), "il migliore".
 
 ## Brand Voice
-**Tone:** caldo, sensoriale, sicuro di sé.
-**Style:** frasi brevi, concrete, dettagli sensoriali; niente punti esclamativi.
-**Personality:** artigianale, solare, onesto, mediterraneo.
+Ispirata a Peels, Tom's Juice e Cruffy (ricerca 2026-10-13; fonti: solo estratti dei motori di ricerca, i siti erano irraggiungibili, quindi trattare come indicazione e non come analisi completa).
+
+**Tone:** diretto, caldo, asciutto. Un sorriso ogni tanto, mai una battuta forzata.
+**Style:** frasi corte, spesso di 5-10 parole. Si dà del tu. Il brand parla al plurale («noi»).
+**Personality:** onesto, concreto, siciliano, un po' ironico.
+
+**Regole**
+- Il numero «1 ingrediente» è la prova principale: scriverlo in cifra, ripeterlo.
+- Nomi dei prodotti semplici: «Mango essiccato», non nomi di fantasia.
+- I benefici sono momenti concreti: le 16 alla scrivania, lo zaino, il tagliere, il gin tonic. Non aggettivi.
+- Fatti verificabili (bassa temperatura, piccoli lotti, chiusa a mano in Sicilia) al posto di «premium», «eccellenza», «qualità superiore».
+- Testi di servizio (carrello, spedizioni, FAQ) scritti come li direbbe il titolare al bancone.
+- Ironia asciutta in chiusura di paragrafo, al massimo una per sezione.
+- Niente punti esclamativi, niente emoji, niente claim salutistici (Reg. UE 1924/2006): mai «superfood», «detox», «fa bene a…».
+- Niente liste di negazioni («niente X, niente Y, niente Z»): dire una volta cosa manca, poi cosa c'è.
+
+**Esempi in voce:** «Sa solo di mango.» · «In etichetta c'è 1 ingrediente.» · «Il carrello è vuoto. Succede ai migliori.» · «L'ottavo modo è aprire il sacchetto alle 16 e accorgersi alle 16:10 che è finito.»
 
 ## Proof Points
 **Metrics / testimonials:** nessuno ancora — NON inventare. Aggiungere recensioni reali in Sanity appena disponibili.
@@ -80,4 +94,5 @@
 
 ## Changelog
 *Newest first.*
+- v2 (2026-10-13) — Brand voice riscritta sul modello Peels / Tom's Juice / Cruffy (più umana, frasi corte, «1 ingrediente» come prova); testi del sito aggiornati di conseguenza.
 - v1 (2026-10-13) — Initial context, bozza dal codice del sito.

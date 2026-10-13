@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-export function NewsletterForm({ buttonLabel = "Iscrivimi", successText = "Grazie! Ti terremo aggiornato.", source = "home" }: { buttonLabel?: string; successText?: string; source?: string }) {
+export function NewsletterForm({ buttonLabel = "Iscrivimi", successText = "Fatto. Ci sentiamo al prossimo raccolto.", source = "home" }: { buttonLabel?: string; successText?: string; source?: string }) {
   const [state, setState] = useState<"idle" | "busy" | "ok" | "error">("idle");
   const [msg, setMsg] = useState("");
 

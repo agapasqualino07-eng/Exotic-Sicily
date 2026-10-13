@@ -14,6 +14,7 @@ Il sito è un negozio completo: **tutto ciò che si legge sul sito si modifica d
 | Pagina Store | titolo, testi, riquadri informativi |
 | Pagine di testo | Privacy, Cookie, Termini, Spedizioni & Resi, Contatti (e nuove pagine) |
 | Domande frequenti | pagina /faq + blocco in Home |
+| **Journal (articoli)** | il blog su /journal: titolo, testo, copertina, prodotti citati. È lo strumento SEO più forte: 1-2 articoli al mese su domande reali (ricette, abbinamenti, come leggere un'etichetta) |
 | Iscritti newsletter | lista email (esportabile) |
 | **Impostazioni del sito** | barra annunci, menu, footer, soglia spedizione gratuita, costo spedizione, paesi, contatti, dati aziendali, social, logo, immagine social |
 
@@ -32,8 +33,10 @@ Dopo «Publish» il sito si aggiorna in pochi secondi (con il webhook, vedi sott
    - `SANITY_API_WRITE_TOKEN` = il token Editor
    - `SANITY_REVALIDATE_SECRET` = una parola segreta a tua scelta (es. `mango-2026-xyz`)
 5. Vercel → *Deployments* → ultimo deploy → **⋯ → Redeploy** (le variabili valgono solo dai deploy successivi).
-6. Apri `https://TUOSITO/api/seed?secret=LA-TUA-PAROLA`: carica prodotti, testi, FAQ e pagine di partenza
+6. Apri `https://TUOSITO/api/seed?secret=LA-TUA-PAROLA`: carica prodotti, testi, FAQ, pagine e articoli di partenza
    (crea solo ciò che manca, non sovrascrive mai le tue modifiche).
+   Per **sostituire** i contenuti di partenza con l'ultima versione dei testi (es. dopo un aggiornamento del sito)
+   aggiungi `&aggiorna=1`: riscrive solo i documenti creati dal seed, ma **cancella le modifiche fatte a quelli**.
 7. Apri `https://TUOSITO/studio`, accedi con l'account Sanity e modifica tutto.
 
 Finché il Project ID non è impostato, `/studio` mostra queste istruzioni invece di un errore.
@@ -68,7 +71,10 @@ vanno configurati in Stripe (ricevute automatiche) e col vostro commercialista.
 - [ ] Inserire valori nutrizionali e allergeni di ogni prodotto (obbligo di etichettatura alimentare)
 - [ ] Impostare il webhook Sanity e quello Stripe; provare un acquisto con carta di test (`4242 4242 4242 4242`)
 - [ ] Aggiungere recensioni reali (solo con consenso)
+- [ ] Riscrivere «Chi siamo» (Home → sezione Storia) con la vostra storia vera: nomi, luogo, come è nata. Il testo attuale è una bozza nel tono giusto, non un fatto
+- [ ] Verificare i tempi di consegna (2-4 giorni) usati anche nei dati per Google Shopping
+- [ ] Google Search Console: aggiungere il dominio e inviare `https://TUOSITO/sitemap.xml"
 
 ## Sviluppo
 `npm run dev` · `npm run build` · `npm run typecheck`. Senza `NEXT_PUBLIC_SANITY_PROJECT_ID` il sito mostra i
-contenuti di `src/lib/seed-data.mjs`. Animazioni: GSAP (`src/components/motion/`), tutte disattivate se il visitatore ha attivato «riduci animazioni». Contesto marketing in `.agents/product-marketing.md`. Le skill usate per la progettazione (marketing e UI/UX) sono in `.claude/skills/`.
+contenuti di `src/lib/seed-data.mjs`. Animazioni: GSAP (`src/components/motion/`), tutte disattivate se il visitatore ha attivato «riduci animazioni». Contesto marketing e tono di voce in `.agents/product-marketing.md` (leggerlo prima di scrivere testi nuovi). Le skill usate per la progettazione (marketing e UI/UX) sono in `.claude/skills/`.

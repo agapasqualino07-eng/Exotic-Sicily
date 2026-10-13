@@ -41,7 +41,7 @@ export function Header({ settings }: { settings: SiteSettings }) {
           <Brand settings={settings} />
           <MobileNav items={(settings.navigation ?? []).map((n) => ({ label: n.label ?? "", href: n.href ?? "/" }))} />
           <div className="header-actions">
-            <Link href="/store" className="btn btn-outline btn-sm hide-sm">Vai allo Store</Link>
+            <Link href="/store" className="btn btn-outline btn-sm hide-sm">Shop</Link>
             <CartButton />
           </div>
         </div>

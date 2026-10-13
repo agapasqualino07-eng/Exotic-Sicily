@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
 
   if (body.website) return NextResponse.json({ ok: true }); // bot: fingiamo che sia andata bene
   const email = typeof body.email === "string" ? body.email.trim().toLowerCase() : "";
-  if (!EMAIL.test(email) || email.length > 254) return NextResponse.json({ error: "Inserisci un indirizzo email valido." }, { status: 400 });
+  if (!EMAIL.test(email) || email.length > 254) return NextResponse.json({ error: "Questa email non ci convince. Ricontrolla?" }, { status: 400 });
 
   const client = writeClient();
   if (!client) return NextResponse.json({ error: "L'iscrizione non è ancora attiva. Riprova più tardi." }, { status: 503 });
