@@ -3,7 +3,7 @@
    Se Sanity non è ancora collegato (nessun NEXT_PUBLIC_SANITY_PROJECT_ID) usa
    i contenuti di partenza di seed-data.mjs, così il sito funziona subito.
    ========================================================================= */
-import { client, hasSanity } from "./sanity-client";
+import { anonClient, client, hasReadToken, hasSanity } from "./sanity-client";
 import * as seed from "./seed-data.mjs";
 import type {
   ArticleData, CategoryData, FaqData, HomePageData, PageData, ProductCardData, ProductData,
@@ -12,8 +12,26 @@ import type {
 
 const REVALIDATE = 60;
 
+let tokenRejected = false;
+
 async function query<T>(q: string, params: Record<string, unknown>, tags: string[]): Promise<T> {
-  return client.fetch<T>(q, params, { next: { revalidate: REVALIDATE, tags } });
+  const opts = { next: { revalidate: REVALIDATE, tags } };
+  if (hasReadToken && !tokenRejected) {
+    try {
+      return await client.fetch<T>(q, params, opts);
+    } catch (err) {
+      // Token non valido, senza permessi o incollato male: si prova senza, invece di far fallire il sito.
+      const status = (err as { statusCode?: number }).statusCode;
+      const result = await anonClient.fetch<T>(q, params, opts); // se fallisce anche questa, l'errore è un altro (rete, Project ID)
+      tokenRejected = true;
+      console.warn(
+        `[Sanity] Lettura con SANITY_API_WRITE_TOKEN fallita (${status ?? (err as Error).message}). Leggo i contenuti senza token: ` +
+          "prodotti, FAQ e pagine creati da /api/seed potrebbero non comparire. Crea un token «Editor» in Sanity → API → Tokens, aggiornalo su Vercel e fai Redeploy.",
+      );
+      return result;
+    }
+  }
+  return anonClient.fetch<T>(q, params, opts);
 }
 
 /* ------------------------------ GROQ ------------------------------------- */
@@ -173,9 +191,12 @@ export async function getPageSlugs(): Promise<{ slug: string; updatedAt?: string
 /** Per il checkout: prezzi e disponibilità SEMPRE letti da Sanity lato server (mai dal browser). */
 export async function getProductsForCheckout(slugs: string[]): Promise<ProductCardData[]> {
   if (!hasSanity) return [];
-  return client.withConfig({ useCdn: false }).fetch<ProductCardData[]>(
-    `*[_type == "product" && slug.current in $slugs] ${CARD}`, { slugs }, { cache: "no-store" },
-  );
+  const q = `*[_type == "product" && slug.current in $slugs] ${CARD}`;
+  try {
+    return await client.withConfig({ useCdn: false }).fetch<ProductCardData[]>(q, { slugs }, { cache: "no-store" });
+  } catch {
+    return anonClient.withConfig({ useCdn: false }).fetch<ProductCardData[]>(q, { slugs }, { cache: "no-store" });
+  }
 }
 
 /* ------------------------------ JOURNAL ---------------------------------- */

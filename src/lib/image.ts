@@ -3,8 +3,8 @@ import type { SImage } from "./types";
 
 /* Volutamente separato dal client Sanity: questo file finisce anche nel browser. */
 const builder = createImageUrlBuilder({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || "missing-project-id",
-  dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || "production",
+  projectId: (process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || "").trim() || "missing-project-id",
+  dataset: (process.env.NEXT_PUBLIC_SANITY_DATASET || "production").trim(),
 });
 
 /** URL ottimizzato dal CDN di Sanity (ritaglio, WebP/AVIF automatico, qualità 80). */

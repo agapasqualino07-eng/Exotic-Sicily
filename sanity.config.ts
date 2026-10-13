@@ -5,8 +5,8 @@ import { structureTool } from "sanity/structure";
 import { schemaTypes } from "./src/sanity/schemaTypes";
 import { SINGLETONS, structure } from "./src/sanity/structure";
 
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || "missing-project-id";
-const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || "production";
+const projectId = (process.env.NEXT_PUBLIC_SANITY_PROJECT_ID || "").trim() || "missing-project-id";
+const dataset = (process.env.NEXT_PUBLIC_SANITY_DATASET || "production").trim();
 
 export default defineConfig({
   name: "default",
