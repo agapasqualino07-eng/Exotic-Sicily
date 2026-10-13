@@ -24,7 +24,15 @@ export function Brand({ settings }: { settings: SiteSettings }) {
 export function AnnouncementBar({ settings }: { settings: SiteSettings }) {
   const a = settings.announcement;
   if (!a?.enabled || !a.text) return null;
-  const inner = <span>{a.text}</span>;
+  // Su mobile si vede solo la prima parte (prima del «·»), così la barra resta su una riga
+  const parts = a.text.split(" · ");
+  const inner = (
+    <span>
+      {parts.map((t, i) => (
+        <span key={i} className={i > 0 ? "announce-extra" : undefined}>{i > 0 ? ` · ${t}` : t}</span>
+      ))}
+    </span>
+  );
   return (
     <div className="announce">
       {a.href ? <Link href={a.href}>{inner}</Link> : inner}

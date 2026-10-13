@@ -34,7 +34,7 @@ export function Footer({ settings, categories = [] }: { settings: SiteSettings; 
             <ul>
               {(settings.navigation ?? []).map((n) => <li key={n._key ?? n.href}><Link href={n.href ?? "/"}>{n.label}</Link></li>)}
               {categories.map((c) => <li key={c._id}><Link href={`/store/${c.slug}`}>{c.title}</Link></li>)}
-              <li><Link href="/journal">Journal</Link></li>
+              {(settings.navigation ?? []).some((n) => n.href === "/journal") ? null : <li><Link href="/journal">Journal</Link></li>}
             </ul>
           </nav>
 
